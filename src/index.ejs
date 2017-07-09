@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- phone stuff -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+<meta name="apple-mobile-web-app-capable" content="yes"><!-- full screen in mobile safari? -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- http://realfavicongenerator.net/favicon_result?file_id=p1bkb8v7071qkr1g991l3b66tfvr6#.WV3X4ojyuUk -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="apple-mobile-web-app-title" content="ServerlessCMS">
+<meta name="application-name" content="ServerlessCMS">
+<meta name="theme-color" content="#555555">
+
+<!-- vuetify css requirements -->
+<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet" type="text/css">
+<link href="https://unpkg.com/vuetify@0.13.1/dist/vuetify.min.css" rel="stylesheet" type="text/css">
+<link href="https://cdn.materialdesignicons.com/1.9.32/css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" /><!-- optional: mdi -->
+<style>
+	/* fix textfield min-width issue */
+	.input-group__input > input {
+		width: 0; /* somehow this affects min-width instead of width?! */
+	}
+	/* zoom out slightly on very small screens (lazy responsive design) */
+	@media screen and (max-width: 380px) {
+		body { zoom: 0.85; }
+	}
+</style>
+
+<!-- only required element for html5 is title -->
+<title>ServerlessCMS</title>
+
+<!-- vue mount point -->
+<div id="app">
+	<div style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background-color: #f32196;">
+		<div><img src="/android-chrome-192x192.png" width="192" height="192" style="background-color: #fff;"></div>
+		<h3 style="color: #fff;">ServerlessCMS</h3>
+	</div>
+</div>
+
+<!-- javascript requirements -->
+<script src="https://unpkg.com/lodash@4.17.4"></script>
+<script src="https://www.gstatic.com/firebasejs/4.1.1/firebase.js"></script>
+<script src="https://unpkg.com/vue@2.3.4"></script>
+<script src="https://unpkg.com/vuex@2.3.1"></script>
+<script src="https://unpkg.com/vue-router@2.5.3/dist/vue-router.js"></script>
+<script src="https://unpkg.com/vuetify@0.13.1/dist/vuetify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.6.0/Sortable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.13.1/vuedraggable.min.js"></script>
+<script src="https://unpkg.com/dustjs-linkedin@2.7.5/dist/dust-full.js"></script>
+
+<!-- webpack bundle script tag inserted here -->

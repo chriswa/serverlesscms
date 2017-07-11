@@ -6,19 +6,30 @@
 		</template>
 
 		<template slot="menu">
-			<NavMenuLink v-if="siteLoaded" @click="linkTo('/dashboard')"     icon="mdi-web"                  >{{siteMeta.name}}</NavMenuLink>
 
+			<v-divider :inset="false"></v-divider>
+
+			<NavMenuLink v-if="siteLoaded" @click="linkTo('/preview')"    icon="mdi-eye"            >Preview</NavMenuLink>
+			<NavMenuLink v-if="siteLoaded" @click="linkTo('/publish')"    icon="mdi-cloud-upload"           >Publish</NavMenuLink>
+
+			<v-divider :inset="false"></v-divider>
+			
 			<template v-if="siteLoaded">
-				<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="onSectionClick(sectionId, section)">Section: {{section.name}}</NavMenuLink>
+				<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="linkTo(sectionContentLink(sectionId))">{{section.name}}</NavMenuLink>
 			</template>
 
-			<NavMenuLink v-if="siteLoaded"    @click=""                    icon="settings"                   >Configure Sections</NavMenuLink>
+			<v-divider :inset="false"></v-divider>
+
+			<NavMenuLink v-if="siteLoaded" @click="linkTo('/publish')"    icon="mdi-database"               >Sections</NavMenuLink>
+			<NavMenuLink v-if="siteLoaded" @click="linkTo('/templates')"  icon="mdi-book-open-page-variant" >Templates</NavMenuLink>
+			<NavMenuLink v-if="auth.uid"   @click="linkTo('/settings')"   icon="settings"                   >Settings</NavMenuLink>
+
+			<v-divider :inset="false"></v-divider>
 			
-			<NavMenuLink v-if="siteLoaded"    @click=""                    icon="mdi-book-open-page-variant" >Templates</NavMenuLink>
+			<!--<NavMenuLink v-if="auth.uid"   @click="linkTo('/my-account')" icon="account_box"                >My Account</NavMenuLink>-->
+			<NavMenuLink v-if="auth.uid"   @click="logout"                icon="exit_to_app"                >Logout ({{auth.email}})</NavMenuLink>
+			<NavMenuLink v-if="!auth.uid"  @click=""                      icon="account_box"                >Login</NavMenuLink>
 
-			<NavMenuLink v-if="auth.uid"      @click="logout"              icon="exit_to_app"                >Logout ({{auth.email}})</NavMenuLink>
-
-			<NavMenuLink v-if="!auth.uid"     @click=""                    icon="account_box"                >Login</NavMenuLink>
 		</template>
 
 		<main>
@@ -79,17 +90,12 @@
 			},
 		},
 		methods: {
+			sectionContentLink(sectionId) {
+				return this.sections[sectionId].type === 'single' ? `/content/${sectionId}/edit` : `/content/${sectionId}/list`
+			},
 			logout() {
 				firebase.auth().signOut()
 				this.linkTo('/')
-			},
-			onSectionClick(sectionId, section) {
-				if (section.type === 'single') {
-					this.linkTo(`/content/${sectionId}/edit`)
-				}
-				else {
-					this.linkTo(`/content/${sectionId}/list`)
-				}
 			},
 			linkTo(url) {
 				this.$router.push(url)

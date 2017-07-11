@@ -2,11 +2,15 @@
 	<div>
 
 		<v-card>
-			<v-card-title class="primary white--text" v-if="recordId">
-				Modify record "{{ recordTitle }}" in {{ sections[sectionId].name }} section
+			
+			<v-card-title class="primary white--text" v-if="isSingleRecordSection">
+				{{ section.name }}
+			</v-card-title>
+			<v-card-title class="primary white--text" v-else-if="recordId">
+				<router-link :to="`/content/${sectionId}/list`">{{ section.name }}</router-link> &mdash; {{ recordTitle }}
 			</v-card-title>
 			<v-card-title class="primary white--text" v-else>
-				Add record in {{ sections[sectionId].name }} section
+				<router-link :to="`/content/${sectionId}/list`">{{ section.name }}</router-link> &mdash; {{ recordTitle }} (new)
 			</v-card-title>
 			<v-card-text>
 
@@ -14,12 +18,26 @@
 					<tbody>
 						<tr v-for="[fieldId, field] in sortedFields">
 
-							<td>{{ field.name }}</td>
-							<td>{{ record[fieldId] }}</td>
+							<td>
+								{{ field.name }}
+							</td>
+							<td>
+								<v-text-field v-model="recordScratch[fieldId]" single-line hide-details></v-text-field>
+							</td>
 
 						</tr>
 					</tbody>
 				</my-data-table>
+				<my-data-table v-else>
+					<tbody><tr><td>Loading...</td></tr></tbody>
+				</my-data-table>
+
+			</v-card-text>
+			<v-card-text class="text-xs-right">
+
+				<v-btn :disabled="isUnchanged" @click.native.stop="">Save</v-btn>
+				<v-btn :disabled="isUnchanged" @click.native.stop="init()" v-if="isSingleRecordSection">Cancel</v-btn>
+				<v-btn :disabled="false"       @click.native.stop="$router.push(`/content/${sectionId}/list`)" v-else>Cancel</v-btn>
 
 			</v-card-text>
 		</v-card>
@@ -36,7 +54,8 @@
 		data() {
 			return {
 				loaded: false,
-				record: undefined,
+				recordSource: undefined,
+				recordScratch: undefined,
 			}
 		},
 		computed: {
@@ -56,12 +75,10 @@
 				return this.section.type === 'single'
 			},
 			recordTitle() {
-				if (this.recordId) {
-					return this.loaded ? this.record[this.titleField] : 'loading...'
-				}
-				else {
-					return 'New Record'
-				}
+				return this.loaded ? this.recordScratch[this.titleField] : 'loading...'
+			},
+			isUnchanged() {
+				return _.isEqual(this.recordSource, this.recordScratch)
 			},
 		},
 		mounted() {
@@ -83,12 +100,15 @@
 				if (recordIdToLoad) {
 					this.loaded = false
 					this.firebaseRefManager.add(fireDB.ref(`/sites/${this.auth.userData.site}/records/${this.sectionId}/${recordIdToLoad}`), 'value', snapshot => {
-						this.record = snapshot.val()
+						this.recordSource = snapshot.val()
+						this.recordScratch = _.clone(this.recordSource)
 						this.loaded = true
 					})
 				}
 				else {
 					// creating a new record
+					this.recordSource = _.mapValues(this.fields, () => { return "" })
+					this.recordScratch = _.clone(this.recordSource)
 					this.loaded = true
 				}
 			},
@@ -97,3 +117,6 @@
 
 </script>
 
+<style scoped>
+.card__title a { color: white; text-decoration: none; font-weight: bold; margin-right: 5px; }
+</style>

@@ -26,6 +26,9 @@ Vue.use(VueRouter)
 import VueFire from './vuefire-custom'
 Vue.use(VueFire)
 
+// vuex store
+import store from './store'
+
 // global components
 
 import MyDataTable from './components/MyDataTable.vue'
@@ -80,6 +83,7 @@ const router = new VueRouter({
 
 // init vue with router config on App
 window.root = new Vue({
+	store,
 	router,
 	el: '#app',
 	render: h => h(App)

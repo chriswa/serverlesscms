@@ -58,16 +58,19 @@
 	import FirebaseRefManager from './FirebaseRefManager'
 
 	export default {
-		props: [ "auth", "siteMeta", "sections", "sectionId" ],
+		props: [ "sectionId" ],
 		data() {
 			return {
-				loaded: false,
-				records: undefined,
+				loaded: 	false,
+				records:	undefined,
 			}
 		},
 		computed: {
+			site() {
+				return this.$store.state.site
+			},
 			section() {
-				return this.sections[this.sectionId]
+				return this.site.sections[this.sectionId]
 			},
 			fields() {
 				return this.section.fields
@@ -95,9 +98,7 @@
 		methods: {
 			init() {
 				this.loaded = false
-				console.log(`/sites/${this.auth.userData.site}/records/${this.sectionId}`)
-				this.firebaseRefManager.add(fireDB.ref(`/sites/${this.auth.userData.site}/records/${this.sectionId}`).limitToFirst(100), 'value', snapshot => {
-					console.log(snapshot.val())
+				this.firebaseRefManager.add(fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).limitToFirst(100), 'value', snapshot => {
 					this.records = snapshot.val()
 					this.loaded = true
 				})

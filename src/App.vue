@@ -7,57 +7,64 @@
 
 		<template slot="menu">
 
-			<v-divider :inset="false"></v-divider>
+			<template v-if="isSiteLoaded">
 
-			<NavMenuLink v-if="siteLoaded" @click="linkTo('/preview')"    icon="mdi-eye"            >Preview</NavMenuLink>
-			<NavMenuLink v-if="siteLoaded" @click="linkTo('/publish')"    icon="mdi-cloud-upload"           >Publish</NavMenuLink>
+				<v-divider :inset="false"></v-divider>
 
-			<v-divider :inset="false"></v-divider>
-			
-			<template v-if="siteLoaded">
-				<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="linkTo(sectionContentLink(sectionId))">{{section.name}}</NavMenuLink>
+				<NavMenuLink @click="linkTo('/preview')"    icon="mdi-eye"            >Preview</NavMenuLink>
+				<NavMenuLink @click="linkTo('/publish')"    icon="mdi-cloud-upload"           >Publish</NavMenuLink>
+
+				<v-divider :inset="false"></v-divider>
+				
+				<template>
+					<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="linkTo(sectionContentLink(sectionId))">{{ section.name }}</NavMenuLink>
+				</template>
+
+				<v-divider :inset="false"></v-divider>
+
+				<NavMenuLink @click="linkTo('/publish')"    icon="mdi-database"               >Sections</NavMenuLink>
+				<NavMenuLink @click="linkTo('/templates')"  icon="mdi-book-open-page-variant" >Templates</NavMenuLink>
+				<NavMenuLink @click="linkTo('/settings')"   icon="settings"                   >Settings</NavMenuLink>
+
 			</template>
 
 			<v-divider :inset="false"></v-divider>
-
-			<NavMenuLink v-if="siteLoaded" @click="linkTo('/publish')"    icon="mdi-database"               >Sections</NavMenuLink>
-			<NavMenuLink v-if="siteLoaded" @click="linkTo('/templates')"  icon="mdi-book-open-page-variant" >Templates</NavMenuLink>
-			<NavMenuLink v-if="auth.uid"   @click="linkTo('/settings')"   icon="settings"                   >Settings</NavMenuLink>
-
-			<v-divider :inset="false"></v-divider>
 			
-			<!--<NavMenuLink v-if="auth.uid"   @click="linkTo('/my-account')" icon="account_box"                >My Account</NavMenuLink>-->
-			<NavMenuLink v-if="auth.uid"   @click="logout"                icon="exit_to_app"                >Logout ({{auth.email}})</NavMenuLink>
-			<NavMenuLink v-if="!auth.uid"  @click=""                      icon="account_box"                >Login</NavMenuLink>
+			<!--<NavMenuLink v-if="isLoggedIn"   @click="linkTo('/my-account')" icon="account_box"                >My Account</NavMenuLink>-->
+			<NavMenuLink v-if="isLoggedIn"   @click="logout"                icon="exit_to_app"                >Logout ({{ account.email }})</NavMenuLink>
+			<NavMenuLink v-if="!isLoggedIn"  @click=""                      icon="account_box"                >Login</NavMenuLink>
 
 		</template>
 
 		<main>
 			<v-container fluid>
 
-				<div v-if="loadingStatus">
+				<div v-if="!ready">
 
 				</div>
-				<div v-else-if="!auth.uid">
+				<div v-else-if="!isLoggedIn">
 
 					<Login></Login>
 
 				</div>
-				<div v-else-if="!loadingStatus">
+				<div v-else>
 
-					<router-view :auth="auth" :sections="sections" :siteMeta="siteMeta"></router-view>
+					<router-view></router-view>
 
 				</div>
 
 			</v-container>
 		</main>
 		
-		<v-dialog :value="!!loadingStatus" persistent transition="div">
+		<v-dialog :value="!ready" persistent transition="div">
 			<v-card>
 				<v-card-title class="info white--text">Loading</v-card-title>
-				<v-card-text>{{ loadingStatus || "Transitioning" }}...</v-card-text>
+				<v-card-text v-if=     	"!account.ready"	>{{ account.readyStatus }}...</v-card-text>
+				<v-card-text v-else-if=	"!site.ready"   	>Loading your data...</v-card-text>
+				<v-card-text v-else    	                	>Transitioning...</v-card-text>
 			</v-card>
 		</v-dialog>
+
 	</PinnableNavigationLayout>
 </template>
 <script>
@@ -65,19 +72,10 @@
 	export default {
 		data() {
 			return {
-				loadingStatus: 'Connecting to server',
-				auth: {
-					uid:      undefined,
-					email:    undefined,
-					userData: undefined,
-				},
-				siteLoaded: false,
-				sections: undefined,
-				siteMeta: undefined,
 			}
 		},
 		mounted() {
-			firebase.auth().onAuthStateChanged( this.onAuthStateChanged )
+			
 		}, 
 		components: {
 			Login:                    require('./Login.vue'),
@@ -85,13 +83,28 @@
 			PinnableNavigationLayout: require('./components/PinnableNavigationLayout.vue'),
 		},
 		computed: {
+			account() {
+				return this.$store.state.account
+			},
+			site() {
+				return this.$store.state.site
+			},
+			ready() {
+				return this.account.ready && this.site.ready
+			},
+			isLoggedIn() {
+				return this.$store.getters["account/isLoggedIn"]
+			},
+			isSiteLoaded() {
+				return this.$store.getters["site/loaded"]
+			},
 			sortedSections() {
-				return _(this.sections).toPairs().sortBy('1.order').value()
+				return _(this.site.sections).toPairs().sortBy('1.order').value()
 			},
 		},
 		methods: {
 			sectionContentLink(sectionId) {
-				return this.sections[sectionId].type === 'single' ? `/content/${sectionId}/edit` : `/content/${sectionId}/list`
+				return this.site.sections[sectionId].type === 'single' ? `/content/${sectionId}/edit` : `/content/${sectionId}/list`
 			},
 			logout() {
 				firebase.auth().signOut()
@@ -100,60 +113,6 @@
 			linkTo(url) {
 				this.$router.push(url)
 				this.isTempNavShown = false
-			},
-			onAuthStateChanged(user) {
-				//console.log(user)
-
-				// not logged in?
-				if (!user) {
-					this.auth.uid      = undefined
-					this.auth.userData = undefined
-					this.loadingStatus = undefined
-					return
-				}
-
-				// logged in...
-				this.auth.uid   = user.uid
-				this.auth.email = user.email
-
-				this.loadingStatus = 'Loading your data'
-
-				fireDB.ref(`/users/${this.auth.uid}`).on('value', snapshot => {
-					
-					var userData = snapshot.val()
-					//console.log(userData)
-
-					if (userData && userData.site) {
-						this.auth.userData = userData
-
-						var sectionsLoaded = false
-						var metaLoaded     = false
-						var onLoadedOneThing = () => {
-							if (sectionsLoaded && metaLoaded) {
-								this.siteLoaded    = true
-								this.loadingStatus = undefined
-							}
-						}
-
-						fireDB.ref(`/sites/${userData.site}/sections`).on('value', snapshot => {
-							this.sections = snapshot.val()
-							sectionsLoaded = true
-							onLoadedOneThing()
-						})
-						fireDB.ref(`/sites/${userData.site}/meta`).on('value', snapshot => {
-							this.siteMeta = snapshot.val()
-							metaLoaded = true
-							onLoadedOneThing()
-						})
-
-					}
-					else {
-						// if there's no user data, assume the user is new
-						//console.log('welcome, new user!')
-						this.$router.push('/welcome')
-						this.loadingStatus = undefined
-					}
-				})
 			},
 		},
 	}

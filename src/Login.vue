@@ -39,12 +39,6 @@
 			</div>
 		</div>
 
-		<v-dialog :value="attemptingAuth" persistent transition="div">
-			<v-card>
-				<v-card-title class="info white--text">Loading</v-card-title>
-				<v-card-text>Checking your credentials...</v-card-text>
-			</v-card>
-		</v-dialog>
 	</div>
 </template>
 
@@ -58,7 +52,6 @@
 				password:       '',
 				passwordAgain:  '',
 				errorMessage:   undefined,
-				attemptingAuth: false,
 				isRegisterForm: false,
 			}
 		},
@@ -87,19 +80,15 @@
 				this.isRegisterForm ? this.register() : this.login()
 			},
 			login() {
-				this.attemptingAuth = true
 				this.errorMessage = undefined
-				firebase.auth().signInWithEmailAndPassword(this.email, this.password).catch(error => { // error.code, error.message
-					this.attemptingAuth = false
+				this.$store.dispatch('account/signIn', { email: this.email, password: this.password }).catch(error => {
 					this.errorMessage = error.message
 					this.clearForms()
 				})
 			},
 			register() {
-				this.attemptingAuth = true
 				this.errorMessage = undefined
-				firebase.auth().createUserWithEmailAndPassword(this.email, this.password).catch(error => { // error.code, error.message
-					this.attemptingAuth = false
+				this.$store.dispatch('account/register', { email: this.email, password: this.password }).catch(error => {
 					this.errorMessage = error.message
 					this.clearForms()
 				})

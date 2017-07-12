@@ -50,15 +50,21 @@
 	import FirebaseRefManager from './FirebaseRefManager'
 
 	export default {
-		props: [ "auth", "siteMeta", "sections", "sectionId", "recordId" ],
+		props: [ "sectionId", "recordId" ],
 		data() {
 			return {
-				loaded: false,
-				recordSource: undefined,
-				recordScratch: undefined,
+				loaded:       	false,
+				recordSource: 	undefined,
+				recordScratch:	undefined,
 			}
 		},
 		computed: {
+			site() {
+				return this.$store.state.site
+			},
+			sections() {
+				return this.site.sections
+			},
 			section() {
 				return this.sections[this.sectionId]
 			},
@@ -99,7 +105,7 @@
 				var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
 				if (recordIdToLoad) {
 					this.loaded = false
-					this.firebaseRefManager.add(fireDB.ref(`/sites/${this.auth.userData.site}/records/${this.sectionId}/${recordIdToLoad}`), 'value', snapshot => {
+					this.firebaseRefManager.add(fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`), 'value', snapshot => {
 						this.recordSource = snapshot.val()
 						this.recordScratch = _.clone(this.recordSource)
 						this.loaded = true

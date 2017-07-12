@@ -1,7 +1,7 @@
-var path = require('path')
-var webpack = require('webpack')
-var HtmlWebpackPlugin = require('html-webpack-plugin')
-var UglifyJSPlugin = require('uglifyjs-webpack-plugin')
+var path             	= require('path')
+var webpack          	= require('webpack')
+var HtmlWebpackPlugin	= require('html-webpack-plugin')
+var UglifyJSPlugin   	= require('uglifyjs-webpack-plugin')
 
 module.exports = {
 	entry: './src/main.js',
@@ -55,9 +55,9 @@ module.exports = {
 		}),
 	],
 	devServer: {
-		historyApiFallback: true,
-		noInfo: true,
-		disableHostCheck: true                  // allow http://raspberrypi:8080/
+		historyApiFallback:	true,
+		noInfo:            	true,
+		disableHostCheck:  	true,                  // allow http://raspberrypi:8080/
 	},
 	performance: {
 		hints: false

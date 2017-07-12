@@ -28,6 +28,7 @@ Vue.use(VueFire)
 
 // vuex store
 import store from './store'
+window.dev_store = store // 
 
 // global components
 

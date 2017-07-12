@@ -1,37 +1,77 @@
+firebase.auth().onAuthStateChanged( user => {
+	store.dispatch('site/onAuthChange', user)
+})
+
 const accountModule = {
 	namespaced: true,
 	state: {
-		loaded:  	false,
-		uid:     	undefined,
-		email:   	undefined,
-		userData:	undefined,
+		ready:       	false,
+		readyStatus: 	undefined,
+		errorMessage:	undefined,
+		uid:         	undefined,
+		email:       	undefined,
+		userData:    	undefined,
 	},
 	getters: {
 		isLoggedIn(state, getters, rootState, rootGetters) {
-			return state.loaded && state.uid
+			return !!(state.ready && state.uid)
 		},
 		isNewUser(state, getters, rootState, rootGetters) {
-			return state.loaded && state.uid && _.isEmpty(state.userData)
+			return !!(state.ready && state.uid && _.isEmpty(state.userData))
 		},
 	},
 	mutations: {
-		startLoading(state) {
-			state.loaded = false
+		start(state, readyStatus) {
+			state.ready       	= false
+			state.readyStatus 	= readyStatus
+			state.errorMessage	= undefined
+			state.uid         	= undefined
+			state.email       	= undefined
+			state.userData    	= undefined
+		},
+		fail(state, error) {
+			state.ready       	= true
+			state.readyStatus 	= undefined
+			state.errorMessage	= error.message
 		},
 		logout(state) {
-			state.loaded  	= true
-			state.uid     	= undefined
-			state.email   	= undefined
-			state.userData	= undefined
+			state.ready      	= true
+			state.readyStatus	= undefined
+			state.uid        	= undefined
+			state.email      	= undefined
+			state.userData   	= undefined
 		},
 		login(state, { firebaseUser, userData }) {
-			state.loaded  	= true
-			state.uid     	= firebaseUser.uid
-			state.email   	= firebaseUser.email
-			state.userData	= userData
+			state.ready      	= true
+			state.readyStatus	= undefined
+			state.uid        	= firebaseUser.uid
+			state.email      	= firebaseUser.email
+			state.userData   	= userData
 		},
 	},
 	actions: {
+		signIn({ commit, dispatch, state, rootState }, { email, password }) {
+			return new Promise((resolve, reject) => {
+				commit('start', "Logging in")
+				firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+					resolve()
+				}).catch(error => { // error.code, error.message
+					commit('fail', error)
+					reject(error)
+				})
+			})
+		},
+		register({ commit, dispatch, state, rootState }, { email, password }) {
+			return new Promise((resolve, reject) => {
+				commit('start', "Signing up")
+				firebase.auth().createUserWithEmailAndPassword(email, password).then(() => {
+					resolve()
+				}).catch(error => { // error.code, error.message
+					commit('fail', error)
+					reject(error)
+				})
+			})
+		},
 		onAuthChange({ commit, dispatch, state, rootState }, firebaseUser) {
 			return new Promise((resolve, reject) => {
 
@@ -40,9 +80,9 @@ const accountModule = {
 					return resolve()
 				}
 
-				commit('startLoading')
+				commit('start', "Loading your account")
 
-				fireDB.ref(`/users/${this.auth.uid}`).on('value', snapshot => { // TODO: unregister this firebase event handler next time authChange runs?
+				fireDB.ref(`/users/${firebaseUser.uid}`).on('value', snapshot => { // TODO: unregister this firebase event handler next time authChange runs?
 					var userData = snapshot.val()
 					commit('login', { firebaseUser, userData })
 					resolve()
@@ -55,45 +95,65 @@ const accountModule = {
 const siteModule = {
 	namespaced: true,
 	state: {
+		ready:   	false,
 		loaded:  	false,
+		siteId:  	undefined,
 		sections:	undefined,
 		meta:    	undefined,
 	},
 	getters: {
+		loaded(state, getters, rootState, rootGetters) {
+			return state.sections !== undefined
+		},
 	},
 	mutations: {
 		startLoading(state) {
-			state.loaded = false
+			state.ready   	= false
+			state.siteId  	= undefined
+			state.sections	= undefined
+			state.meta    	= undefined
 		},
-		setLoadedData(state, { section, meta }) {
+		setSiteData(state, { siteId, section, meta }) {
+			state.ready   	= true
+			state.siteId  	= siteId
 			state.sections	= section
 			state.meta    	= meta
 		},
 	},
 	actions: {
 		onAuthChange({ commit, dispatch, state, rootState }, firebaseUser) {
-			commit('startLoading')
 			return new Promise((resolveTop, rejectTop) => {
 				
 				// first, run accountModule's onAuthChange action...
-				dispatch('onAuthChange', 'account', firebaseUser).then(() => {
+				dispatch('account/onAuthChange', firebaseUser, { root: true }).then(() => {
 					
-					var sectionPromise = new Promise((resolve, reject) => {
-						fireDB.ref(`/sites/${rootState.account.userData.site}/sections`).on('value', snapshot => {
-							resolve(snapshot.val())
-						})
-					})
+					var siteId = rootState.account.userData ? rootState.account.userData.site : undefined
+					if (siteId) {
+					
+						commit('startLoading')
 
-					var metaPromise = new Promise((resolve, reject) => {
-						fireDB.ref(`/sites/${rootState.account.userData.site}/meta`).on('value', snapshot => {
-							resolve(snapshot.val())
+						var sectionPromise = new Promise((resolve, reject) => {
+							fireDB.ref(`/sites/${siteId}/sections`).on('value', snapshot => {
+								resolve(snapshot.val())
+							})
 						})
-					})
+	
+						var metaPromise = new Promise((resolve, reject) => {
+							fireDB.ref(`/sites/${rootState.account.userData.site}/meta`).on('value', snapshot => {
+								resolve(snapshot.val())
+							})
+						})
+	
+						Promise.all([sectionPromise, metaPromise]).then(([section, meta]) => {
+							commit('setSiteData', { siteId, section, meta })
+							resolveTop()
+						})
 
-					Promise.all([sectionPromise, metaPromise]).then(([section, meta]) => {
-						commit('setLoadedData', { section, meta })
+					}
+					else {
+						commit('setSiteData', {})
 						resolveTop()
-					})
+					}
 				})
 
 			})
@@ -102,17 +162,18 @@ const siteModule = {
 }
 
 const store = new Vuex.Store({
+	strict: process.env.NODE_ENV !== 'production',
 	modules: {
 		account:	accountModule,
 		site:   	siteModule,
 	},
 	state: { // this.$store.state.stateKey
-		//count: 0,
+		count: 0,
 	},
 	getters: { // this.$store.getters.getterName
-		//fooLength(state, rootState) {
-		//	return state.foo.length
-		//},
+		countPlusOne(state, rootState) {
+			return state.count + 1
+		},
 	},
 	mutations: { // this.$store.commit('mutationName')
 		//increment(state, payload) {
@@ -130,5 +191,28 @@ const store = new Vuex.Store({
 		//},
 	},
 })
+
+store.get = function(moduleId, keyId) {
+	// support calling without a moduleId; i.e. store.get(keyId) should result in store.get(undefined, keyId)
+	if (keyId === undefined) {
+		keyId   	= moduleId
+		moduleId	= undefined
+	}
+
+	// first, check the state to see if the requested key is available there...
+	var state = moduleId ? store.state[moduleId] : store.state
+	if (state.hasOwnProperty(keyId)) {
+		return state[keyId]
+	}
+
+	// if not, next check the getters...
+	var qualifiedGetter = (moduleId ? moduleId + '/' : '') + keyId
+	if (store.getters.hasOwnProperty(qualifiedGetter)) {
+		return store.getters[qualifiedGetter]
+	}
+
+	// 
+	return undefined
+}
 
 export default store

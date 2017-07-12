@@ -16,7 +16,7 @@
 <script>
 
 	export default {
-		props: [ "auth", "siteMeta", "sections" ],
+		props: [],
 		data() {
 			return {
 			}

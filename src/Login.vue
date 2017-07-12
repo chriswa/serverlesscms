@@ -48,11 +48,11 @@
 	export default {
 		data() {
 			return {
-				email:          '',
-				password:       '',
-				passwordAgain:  '',
-				errorMessage:   undefined,
-				isRegisterForm: false,
+				email:         	'',
+				password:      	'',
+				passwordAgain: 	'',
+				errorMessage:  	undefined,
+				isRegisterForm:	false,
 			}
 		},
 		mounted() {
@@ -73,8 +73,8 @@
 		},
 		methods: {
 			clearForms() {
-				this.password = ''
-				this.passwordAgain = ''
+				this.password     	= ''
+				this.passwordAgain	= ''
 			},
 			submit() {
 				this.isRegisterForm ? this.register() : this.login()

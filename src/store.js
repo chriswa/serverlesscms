@@ -215,4 +215,30 @@ store.get = function(moduleId, keyId) {
 	return undefined
 }
 
+store.get = Object.create(store.state)
+_(store.getters)
+.keys()
+.map(qualifiedGetterName => {
+	var parts = qualifiedGetterName.split('/')
+	var getterId = parts.pop()
+	var moduleId = parts.pop()
+	return { moduleId, getterId }
+})
+.groupBy('moduleId')
+.mapValues(v => _.map(v, 'getterId'))
+.each((getterIds, moduleId) => {
+	var api = store.get
+	var getterPrefix = ''
+	if (moduleId !== 'undefined') {
+		getterPrefix = moduleId + '/'
+		Object.defineProperty(api, moduleId, { value: Object.create(store.state[moduleId]) })
+		api = api[moduleId]
+	}
+	_.each(getterIds, getterId => {
+		var qualifiedGetterName = getterPrefix + getterId
+		var getter = Object.getOwnPropertyDescriptor(store.getters, qualifiedGetterName)
+		Object.defineProperty(api, getterId, { get: getter.get })
+	})
+})
+
 export default store

@@ -11,8 +11,8 @@
 
 				<v-divider :inset="false"></v-divider>
 
-				<NavMenuLink @click="linkTo('/preview')"    icon="mdi-eye"            >Preview</NavMenuLink>
-				<NavMenuLink @click="linkTo('/publish')"    icon="mdi-cloud-upload"           >Publish</NavMenuLink>
+				<NavMenuLink @click="linkTo('/preview')"	icon="mdi-eye"         	>Preview</NavMenuLink>
+				<NavMenuLink @click="linkTo('/publish')"	icon="mdi-cloud-upload"	>Publish</NavMenuLink>
 
 				<v-divider :inset="false"></v-divider>
 				
@@ -22,17 +22,17 @@
 
 				<v-divider :inset="false"></v-divider>
 
-				<NavMenuLink @click="linkTo('/publish')"    icon="mdi-database"               >Sections</NavMenuLink>
-				<NavMenuLink @click="linkTo('/templates')"  icon="mdi-book-open-page-variant" >Templates</NavMenuLink>
-				<NavMenuLink @click="linkTo('/settings')"   icon="settings"                   >Settings</NavMenuLink>
+				<NavMenuLink @click="linkTo('/publish')"  	icon="mdi-database"              	>Sections</NavMenuLink>
+				<NavMenuLink @click="linkTo('/templates')"	icon="mdi-book-open-page-variant"	>Templates</NavMenuLink>
+				<NavMenuLink @click="linkTo('/settings')" 	icon="settings"                  	>Settings</NavMenuLink>
 
 			</template>
 
 			<v-divider :inset="false"></v-divider>
 			
-			<!--<NavMenuLink v-if="isLoggedIn"   @click="linkTo('/my-account')" icon="account_box"                >My Account</NavMenuLink>-->
-			<NavMenuLink v-if="isLoggedIn"   @click="logout"                icon="exit_to_app"                >Logout ({{ account.email }})</NavMenuLink>
-			<NavMenuLink v-if="!isLoggedIn"  @click=""                      icon="account_box"                >Login</NavMenuLink>
+			<!--<NavMenuLink v-if="isLoggedIn"	@click="linkTo('/my-account')"	icon="account_box"	>My Account</NavMenuLink>-->
+			<NavMenuLink v-if="isLoggedIn"    	@click="logout"               	icon="exit_to_app"	>Logout ({{ account.email }})</NavMenuLink>
+			<NavMenuLink v-if="!isLoggedIn"   	@click=""                     	icon="account_box"	>Login</NavMenuLink>
 
 		</template>
 
@@ -83,24 +83,12 @@
 			PinnableNavigationLayout: require('./components/PinnableNavigationLayout.vue'),
 		},
 		computed: {
-			account() {
-				return this.$store.state.account
-			},
-			site() {
-				return this.$store.state.site
-			},
-			ready() {
-				return this.account.ready && this.site.ready
-			},
-			isLoggedIn() {
-				return this.$store.getters["account/isLoggedIn"]
-			},
-			isSiteLoaded() {
-				return this.$store.getters["site/loaded"]
-			},
-			sortedSections() {
-				return _(this.site.sections).toPairs().sortBy('1.order').value()
-			},
+			account()       	{ return this.$store.get.account                                  	},
+			site()          	{ return this.$store.get.site                                     	},
+			ready()         	{ return this.account.ready && this.site.ready                    	},
+			isLoggedIn()    	{ return this.$store.get.account.isLoggedIn                       	},
+			isSiteLoaded()  	{ return this.$store.get.site.loaded                              	},
+			sortedSections()	{ return _(this.site.sections).toPairs().sortBy('1.order').value()	},
 		},
 		methods: {
 			sectionContentLink(sectionId) {

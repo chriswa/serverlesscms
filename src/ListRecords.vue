@@ -5,7 +5,7 @@
 			<v-card-title class="primary white--text">
 				{{ section.name }}
 			</v-card-title>
-			<v-card-text>
+			<v-card-text v-if="loaded">
 				
 				<my-data-table>
 					<thead>
@@ -14,7 +14,7 @@
 							<th><!-- actions --></th>
 						</tr>
 					</thead>
-					<tbody v-if="loaded && sortedRecords.length">
+					<tbody v-if="sortedRecords.length">
 						<tr v-for="[ recordId, record ] in sortedRecords">
 
 							<td v-for="[ fieldId, field ] in sortedFields">{{ record[fieldId] }}</td>
@@ -26,24 +26,17 @@
 
 						</tr>
 					</tbody>
-					<tbody v-else-if="loaded">
+					<tbody v-else>
 						<tr>
 							<td :colspan="sortedFields.length + 1">
 								No records
 							</td>
 						</tr>
 					</tbody>
-					<tbody v-else>
-						<tr>
-							<td :colspan="sortedFields.length + 1">
-								Loading...
-							</td>
-						</tr>
-					</tbody>
 				</my-data-table>
 
 			</v-card-text>
-			<v-card-text class="text-xs-right">
+			<v-card-text class="text-xs-right" v-if="loaded">
 
 				<v-btn primary @click.native.stop="$router.push(`/content/${sectionId}/edit`)">Create New</v-btn>
 
@@ -66,21 +59,11 @@
 			}
 		},
 		computed: {
-			site() {
-				return this.$store.state.site
-			},
-			section() {
-				return this.site.sections[this.sectionId]
-			},
-			fields() {
-				return this.section.fields
-			},
-			sortedFields() {
-				return _(this.fields).toPairs().sortBy('1.order').value()
-			},
-			sortedRecords() {
-				return _(this.records).toPairs().sortBy('1.order').value()
-			},
+			site()         	{ return this.$store.get.site                               	},
+			section()      	{ return this.site.sections[this.sectionId]                 	},
+			fields()       	{ return this.section.fields                                	},
+			sortedFields() 	{ return _(this.fields).toPairs().sortBy('1.order').value() 	},
+			sortedRecords()	{ return _(this.records).toPairs().sortBy('1.order').value()	},
 		},
 		mounted() {
 			this.firebaseRefManager = new FirebaseRefManager()

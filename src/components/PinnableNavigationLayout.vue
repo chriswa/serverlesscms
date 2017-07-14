@@ -1,6 +1,6 @@
 <template>
 	<v-app>
-		<v-navigation-drawer temporary light v-model="isTempNavShown" v-if="!isPermanentNavShown">
+		<v-navigation-drawer temporary v-model="isTempNavShown" v-if="!isPermanentNavShown">
 			<v-list dense>
 
 				<NavMenuLink @click="pin" icon="mdi-pin">Pin this menu</NavMenuLink>
@@ -9,7 +9,7 @@
 
 			</v-list>
 		</v-navigation-drawer>
-		<v-navigation-drawer permanent light v-if="isPermanentNavShown" :value="true">
+		<v-navigation-drawer permanent v-if="isPermanentNavShown" :value="true">
 			<v-list dense>
 
 				<NavMenuLink @click="unpin" icon="mdi-pin-off">Unpin this menu</NavMenuLink>
@@ -18,6 +18,7 @@
 
 			</v-list>
 		</v-navigation-drawer>
+		<slot name="moreDrawers"></slot>
 		<v-toolbar dark fixed>
 			<v-toolbar-side-icon light @click.native.stop="isTempNavShown = !isTempNavShown" v-if="!isPermanentNavShown"></v-toolbar-side-icon>
 
@@ -35,8 +36,8 @@
 		data() {
 			//console.log(`pinNav == ${localStorage.getItem('pinNav') === 'true'}`)
 			return {
-				isTempNavShown:      false,
-				isPermanentNavShown: localStorage.getItem('pinNav') === 'true',
+				isTempNavShown:     	false,
+				isPermanentNavShown:	localStorage.getItem('pinNav') === 'true',
 			}
 		},
 		components: {

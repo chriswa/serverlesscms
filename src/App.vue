@@ -1,8 +1,8 @@
 <template>
-	<PinnableNavigationLayout>
+	<AppLayout :allowPreview="isSiteLoaded">
 
-		<template slot="toolbar">
-			<v-toolbar-title>ServerlessCMS</v-toolbar-title>
+		<template slot="previewContent">
+			<Preview></Preview>
 		</template>
 
 		<template slot="menu">
@@ -11,8 +11,8 @@
 
 				<v-divider :inset="false"></v-divider>
 
-				<NavMenuLink @click="linkTo('/preview')"	icon="mdi-eye"         	>Preview</NavMenuLink>
-				<NavMenuLink @click="linkTo('/publish')"	icon="mdi-cloud-upload"	>Publish</NavMenuLink>
+				<!--<NavMenuLink @click="linkTo('/preview')"	icon="mdi-eye"         	>Preview</NavMenuLink>-->
+				<NavMenuLink @click="linkTo('/publish')"    	icon="mdi-cloud-upload"	>Publish</NavMenuLink>
 
 				<v-divider :inset="false"></v-divider>
 				
@@ -36,25 +36,23 @@
 
 		</template>
 
-		<main>
-			<v-container fluid>
+		<template slot="main">
 
-				<div v-if="!ready">
+			<div v-if="!ready">
 
-				</div>
-				<div v-else-if="!isLoggedIn">
+			</div>
+			<div v-else-if="!isLoggedIn">
 
-					<Login></Login>
+				<Login></Login>
 
-				</div>
-				<div v-else>
+			</div>
+			<div v-else>
 
-					<router-view></router-view>
+				<router-view></router-view>
 
-				</div>
+			</div>
 
-			</v-container>
-		</main>
+		</template>
 		
 		<v-dialog :value="!ready" persistent transition="div">
 			<v-card>
@@ -65,7 +63,7 @@
 			</v-card>
 		</v-dialog>
 
-	</PinnableNavigationLayout>
+	</AppLayout>
 </template>
 <script>
 
@@ -74,13 +72,12 @@
 			return {
 			}
 		},
-		mounted() {
-			
-		}, 
 		components: {
-			Login:                    require('./Login.vue'),
-			NavMenuLink:              require('./components/NavMenuLink.vue'),
-			PinnableNavigationLayout: require('./components/PinnableNavigationLayout.vue'),
+			Login:        	require('./Login.vue'),
+			NavMenuLink:  	require('./components/NavMenuLink.vue'),
+			AppLayout:    	require('./AppLayout.vue'),
+			PreviewDrawer:	require('./PreviewDrawer.vue'),
+			Preview:      	require('./Preview.vue'),
 		},
 		computed: {
 			account()       	{ return this.$store.get.account                                  	},

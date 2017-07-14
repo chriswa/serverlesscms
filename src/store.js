@@ -14,9 +14,11 @@ const accountModule = {
 	},
 	getters: {
 		isLoggedIn(state, getters, rootState, rootGetters) {
+			console.log('store getter running: account.isLoggedIn')
 			return !!(state.ready && state.uid)
 		},
 		isNewUser(state, getters, rootState, rootGetters) {
+			console.log('store getter running: account.isNewUser')
 			return !!(state.ready && state.uid && _.isEmpty(state.userData))
 		},
 	},
@@ -103,6 +105,7 @@ const siteModule = {
 	},
 	getters: {
 		loaded(state, getters, rootState, rootGetters) {
+			console.log('store getter running: site.loaded')
 			return state.sections !== undefined
 		},
 	},

@@ -1,5 +1,5 @@
 <template>
-	<v-app>
+	<v-app :style="{ height: 'calc(100vh - 64px)' }">
 
 		<v-navigation-drawer temporary v-model="isTempNavOpen" v-if="!isPermanentNavOpen">
 			<v-list dense>
@@ -38,7 +38,7 @@
 
 		</v-toolbar>
 
-		<main :style="{ paddingRight: previewWidthPx, transition: 'none' }">
+		<main :style="{ marginRight: previewWidthPx, paddingRight: '0', height: 'calc(100vh - 64px)', marginTop: '64px', paddingTop: '0', transition: 'none', overflow: 'auto' }">
 			<v-container fluid>
 				<slot name="main"></slot>
 			</v-container>
@@ -57,7 +57,7 @@
 			return {
 				isTempNavOpen:       	false,
 				isPermanentNavOpen:  	localStorage.getItem('pinNav') === 'true',
-				isPreviewDesiredOpen:	false,
+				isPreviewDesiredOpen:	true,
 				previewWidth:         640,
 			}
 		},

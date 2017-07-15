@@ -25,6 +25,22 @@
 	.input-group__input > input {
 		width: 0; /* somehow this affects min-width instead of width?! */
 	}
+	/* opt out of this "feature" */
+	.navigation-drawer {
+		padding-bottom: 0;
+	}
+	/* fix height issues related to preview drawer and main div overflow */
+	body {
+		height: auto;
+		min-height: auto;
+		overflow: hidden;
+	}
+	body::-webkit-scrollbar {
+		display: none;
+	}
+	div.application {
+		min-height: auto;
+	}
 	/* zoom out slightly on very small screens (lazy responsive design) */
 	@media screen and (max-width: 380px) {
 		body { zoom: 0.85; }
@@ -35,7 +51,7 @@
 <title>ServerlessCMS</title>
 
 <!-- vue mount point -->
-<div id="app">
+<div id="app" style="height: 100vh;">
 	<div style="position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background-color: #f32196;">
 		<div><img src="/android-chrome-192x192.png" width="192" height="192" style="background-color: #fff;"></div>
 		<h3 style="color: #fff;">ServerlessCMS</h3>

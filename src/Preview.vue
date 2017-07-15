@@ -1,7 +1,7 @@
 <template>
 	<div>
 
-		<div ref="preview" style="width: 100%; height: 100%;"></div>
+		<div ref="preview" :style="{ width: '100%', height: '100vh', overflow: 'hidden' }"></div>
 
 	</div>
 </template>
@@ -25,6 +25,7 @@
 		items: [
 			{ name: "Item 1", },
 			{ name: "Item 2", },
+			{ name: "Item 3", },
 		],
 	}
 	var navigationHijackingScript = `<scr`+`ipt>
@@ -36,12 +37,12 @@
 		var targetHref = document.activeElement.href
 		if (targetHref) {
 			var targetUrlPath = targetHref.replace(/^\\w+:\\/\\/\\/?[^\\/]+/, '')
-			window.parent.postMessage(targetUrlPath, '*')
+			window.parent.postMessage({ navigate: targetUrlPath }, '*')
 		}
 		else {
 			var dataHref = document.activeElement.getAttribute('data-href')
 			if (dataHref) {
-				window.parent.postMessage(dataHref, '*')
+				window.parent.postMessage({ navigate: dataHref }, '*')
 			}
 		}
 
@@ -64,9 +65,10 @@
 			}
 		},
 		mounted() {
-			this.iframe             	= document.createElement('iframe')
-			this.iframe.style.width 	= this.iframe.style.height = '100%'
-			this.iframe.style.border	= 'none'
+			this.iframe                	= document.createElement('iframe')
+			this.iframe.style.width    	= '100%'
+			this.iframe.style.minHeight	= '100vh'
+			this.iframe.style.border   	= 'none'
 			this.$refs.preview.appendChild(this.iframe)
 
 			window.addEventListener('message', this.onMessage, false)
@@ -85,10 +87,7 @@
 				var compiled = dust.compile(templateCode)
 				var tmpl = dust.loadSource(compiled)
 				dust.render(tmpl, templateView, (err, out) => {
-					if (err) {
-						console.error(`Template rendering error!`, err)
-					}
-					console.log(err, out)
+					console.log("Template rendered! (err, out)", err, out)
 					this.setIframeContent(out)
 				})
 			},
@@ -98,7 +97,7 @@
 				this.iframe.contentWindow.document.close()
 			},
 			onMessage(event) {
-				console.log("message from iframe! " + event.data)
+				console.log("message from iframe!", event.data)
 			},
 		},
 	}

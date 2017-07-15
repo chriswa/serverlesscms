@@ -5,7 +5,7 @@
 			<div style="background-color: #999; border-right: 1px solid #868686; width: 7px; height: 100vh; position: absolute; cursor: col-resize;" ref="resizeHandle"></div>
 		</div>
 		
-		<div style="margin-left: 8px;">
+		<div :style="{ marginLeft: '8px', pointerEvents: isDragging ? 'none' : 'auto' }">
 
 			<slot name="content"></slot>
 
@@ -19,6 +19,7 @@
 		props: [ 'width' ],
 		data() {
 			return {
+				isDragging: false,
 			}
 		},
 		mounted() {
@@ -29,12 +30,14 @@
 				this.$emit('setWidth', desiredWidth)
 			}
 			var onMouseUp = event => { // only attached during mousedown
+				this.isDragging = false
 				document.removeEventListener('mousemove',	onMouseMove)
 				document.removeEventListener('mouseup',  	onMouseUp)
 				event.preventDefault()
 				event.stopPropagation()
 			}
 			this.$refs.resizeHandle.addEventListener('mousedown', event => {
+				this.isDragging = true
 				document.addEventListener('mousemove',	onMouseMove)
 				document.addEventListener('mouseup',  	onMouseUp)
 				event.preventDefault()

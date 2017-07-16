@@ -22,9 +22,10 @@
 
 				<v-divider :inset="false"></v-divider>
 
-				<NavMenuLink @click="linkTo('/publish')"  	icon="mdi-database"              	>Sections</NavMenuLink>
-				<NavMenuLink @click="linkTo('/templates')"	icon="mdi-book-open-page-variant"	>Templates</NavMenuLink>
-				<NavMenuLink @click="linkTo('/settings')" 	icon="settings"                  	>Settings</NavMenuLink>
+				<NavMenuLink @click="linkTo('/sections/')" 	icon="mdi-database"         	>Configure Sections</NavMenuLink>
+				<NavMenuLink @click="linkTo('/pages/')"    	icon="mdi-sitemap"          	>Configure Pages</NavMenuLink>
+				<NavMenuLink @click="linkTo('/templates/')"	icon="mdi-format-align-left"	>Configure Templates</NavMenuLink>
+				<NavMenuLink @click="linkTo('/settings')"  	icon="settings"             	>Configure Settings</NavMenuLink>
 
 			</template>
 
@@ -73,11 +74,10 @@
 			}
 		},
 		components: {
-			Login:        	require('./Login.vue'),
-			NavMenuLink:  	require('./components/NavMenuLink.vue'),
-			AppLayout:    	require('./AppLayout.vue'),
-			PreviewDrawer:	require('./PreviewDrawer.vue'),
-			Preview:      	require('./Preview.vue'),
+			Login:      	require('./Login.vue'),
+			NavMenuLink:	require('./components/NavMenuLink.vue'),
+			AppLayout:  	require('./AppLayout.vue'),
+			Preview:    	require('./Preview.vue'),
 		},
 		computed: {
 			account()       	{ return this.$store.get.account                                  	},
@@ -89,7 +89,7 @@
 		},
 		methods: {
 			sectionContentLink(sectionId) {
-				return this.site.sections[sectionId].type === 'single' ? `/content/${sectionId}/edit` : `/content/${sectionId}/list`
+				return this.site.sections[sectionId].type === 'single' ? `/record/${sectionId}/edit` : `/record/${sectionId}/`
 			},
 			logout() {
 				firebase.auth().signOut()

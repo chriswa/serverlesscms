@@ -7,27 +7,19 @@
 				{{ section.name }}
 			</v-card-title>
 			<v-card-title class="primary white--text" v-else-if="isNewRecord">
-				<router-link :to="`/content/${sectionId}/list`">{{ section.name }}</router-link> &mdash; create {{ recordTitle }}
+				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; create {{ recordTitle }}
 			</v-card-title>
 			<v-card-title class="primary white--text" v-else>
-				<router-link :to="`/content/${sectionId}/list`">{{ section.name }}</router-link> &mdash; modify {{ recordTitle }}
+				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; modify {{ recordTitle }}
 			</v-card-title>
+
 			<v-card-text v-if="loaded">
 
-				<my-data-table>
-					<tbody>
-						<tr v-for="[fieldId, field] in sortedFields">
-
-							<td>
-								{{ field.name }}
-							</td>
-							<td>
-								<v-text-field v-model="recordScratch[fieldId]" single-line hide-details></v-text-field>
-							</td>
-
-						</tr>
-					</tbody>
-				</my-data-table>
+				<CrudEdit
+					:fields="fields"
+					:record="recordScratch"
+					@fieldUpdate="onFieldUpdate"
+				></CrudEdit>
 
 			</v-card-text>
 			<v-card-text class="text-xs-right" v-if="loaded">
@@ -94,7 +86,10 @@
 				}
 			},
 			gotoListPage() {
-				this.$router.push(`/content/${this.sectionId}/list`)
+				this.$router.push(`/record/${this.sectionId}/`)
+			},
+			onFieldUpdate(fieldId, newValue) {
+				this.recordScratch[fieldId] = newValue
 			},
 			save() {
 				var recordIdToSave = this.isSingleRecordSection ? 'single' : this.recordId
@@ -102,9 +97,12 @@
 					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).push(this.recordScratch)
 				}
 				else {
-					console.log(this.recordScratch)
-					console.log(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}` + ' SET!')
-					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}`).set(this.recordScratch)
+					var objectToSave = _.clone(this.recordScratch) // { ...this.recordScratch }
+					objectToSave.updatedDate = Firebase.ServerValue.TIMESTAMP
+					if (this.isNewRecord) {
+						objectToSave.createDate = Firebase.ServerValue.TIMESTAMP
+					}
+					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}`).set(objectToSave)
 				}
 				if (this.isSingleRecordSection) {
 					this.init()

@@ -97,7 +97,9 @@
 				this.iframe.contentWindow.document.close()
 			},
 			onMessage(event) {
-				console.log("message from iframe!", event.data)
+				if (event.data.navigate) {
+					console.log(`Preview iframe navigation detected: ${event.data.navigate}`)
+				}
 			},
 		},
 	}

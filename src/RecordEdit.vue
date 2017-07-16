@@ -31,6 +31,8 @@
 			</v-card-text>
 		</v-card>
 
+		<LoadingIndicator v-if="!loaded"></LoadingIndicator>
+
 	</div>
 </template>
 

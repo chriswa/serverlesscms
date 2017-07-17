@@ -1,35 +1,29 @@
 <template>
-	<div>
-
-		<v-card>
-			<v-card-title class="primary white--text">
-				Configure Sections
-			</v-card-title>
-			<v-card-text>
-				
-				<CrudList
-					:fields="{ name: { order: 0, name: 'Name' }, type: { order: 1, name: 'Type' } }"
-					:records="$store.get.site.sections"
-					@modify="$router.push(`edit/${$event}`)"
-					@delete="alert('todo')"
-				>
-					<span slot="noResults">No sections</span>
-				</CrudList>
-
-			</v-card-text>
-			<v-card-text class="text-xs-right">
-
-				<v-btn primary @click.native.stop="$router.push(`edit`)">Create Section</v-btn>
-
-			</v-card-text>
-		</v-card>
-
-	</div>
+	<CrudList
+		:fields="fields"
+		:records="records"
+		@modify="$router.push(`edit/${$event}`)"
+		@delete="alert('todo')"
+	>
+		<span slot="titleText">Configure Sections</span>
+		<span slot="noResultsText">No sections</span>
+		<span slot="createButtonText">Create Section</span>
+	</CrudList>
 </template>
 
 <script>
 
+	import fields from './SectionCommon'
+
 	export default {
+		computed: {
+			fields() {
+				return fields
+			},
+			records() {
+				return this.$store.get.site.sections
+			},
+		},
 	}
 
 </script>

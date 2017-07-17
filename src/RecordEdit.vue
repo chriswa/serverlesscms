@@ -1,39 +1,27 @@
 <template>
-	<div>
-
-		<v-card>
-			
-			<v-card-title class="primary white--text" v-if="isSingleRecordSection">
+	<CrudEdit
+		:loaded="loaded"
+		:fields="fields"
+		:record="recordScratch"
+		@fieldUpdate="onFieldUpdate"
+	>
+		<span slot="titleText">
+			<span v-if="isSingleRecordSection">
 				{{ section.name }}
-			</v-card-title>
-			<v-card-title class="primary white--text" v-else-if="isNewRecord">
+			</span>
+			<span v-else-if="isNewRecord">
 				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; create {{ recordTitle }}
-			</v-card-title>
-			<v-card-title class="primary white--text" v-else>
+			</span>
+			<span v-else>
 				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; modify {{ recordTitle }}
-			</v-card-title>
-
-			<v-card-text v-if="loaded">
-
-				<CrudEdit
-					:fields="fields"
-					:record="recordScratch"
-					@fieldUpdate="onFieldUpdate"
-				></CrudEdit>
-
-			</v-card-text>
-			<v-card-text class="text-xs-right" v-if="loaded">
-
-				<v-btn :disabled="isUnchanged" @click.native.stop="save">Save</v-btn>
-				<v-btn :disabled="isUnchanged" @click.native.stop="init" v-if="isSingleRecordSection">Cancel</v-btn>
-				<v-btn :disabled="false"       @click.native.stop="gotoListPage" v-else>Cancel</v-btn>
-
-			</v-card-text>
-		</v-card>
-
-		<LoadingIndicator v-if="!loaded"></LoadingIndicator>
-
-	</div>
+			</span>
+		</span>
+		<div slot="buttons">
+			<v-btn :disabled="isUnchanged" @click.native.stop="save">Save</v-btn>
+			<v-btn :disabled="isUnchanged" @click.native.stop="init" v-if="isSingleRecordSection">Cancel</v-btn>
+			<v-btn :disabled="false"       @click.native.stop="gotoListPage" v-else>Cancel</v-btn>
+		</div>
+	</CrudEdit>
 </template>
 
 <script>

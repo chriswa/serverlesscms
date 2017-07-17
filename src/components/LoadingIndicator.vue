@@ -6,7 +6,7 @@
 
 <script>
 
-	const millisecsBeforeEnabled = 500
+	const millisecsBeforeEnabled = 300
 
 	export default {
 		data() {

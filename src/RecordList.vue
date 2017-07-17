@@ -1,30 +1,15 @@
 <template>
-	<div>
-
-		<v-card>
-			<v-card-title class="primary white--text">
-				{{ section.name }}
-			</v-card-title>
-			<v-card-text v-if="loaded">
-
-				<CrudList
-					:fields="fields"
-					:records="records"
-					@modify="modify"
-					@delete="alert('todo')"
-				>
-					<span slot="noResults">No records</span>
-				</CrudList>
-
-			</v-card-text>
-			<v-card-text class="text-xs-right" v-if="loaded">
-
-				<v-btn primary @click.native.stop="$router.push(`edit`)">Create Record</v-btn>
-
-			</v-card-text>
-		</v-card>
-
-	</div>
+	<CrudList
+		:loaded="loaded"
+		:fields="fields"
+		:records="records"
+		@modify="$router.push(`edit/${$event}`)"
+		@delete="alert('todo')"
+	>
+		<span slot="titleText">{{ section.name }}</span>
+		<span slot="noResultsText">No records</span>
+		<span slot="createButtonText">Create Record</span>
+	</CrudList>
 </template>
 
 <script>
@@ -64,9 +49,6 @@
 					this.records = snapshot.val()
 					this.loaded = true
 				})
-			},
-			modify(recordId) {
-				this.$router.push(`edit/${recordId}`)
 			},
 		},
 	}

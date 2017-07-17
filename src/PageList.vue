@@ -1,35 +1,29 @@
 <template>
-	<div>
-
-		<v-card>
-			<v-card-title class="primary white--text">
-				Configure Pages
-			</v-card-title>
-			<v-card-text>
-				
-				<CrudList
-					:fields="{ name: { order: 0, name: 'Name' }, type: { order: 1, name: 'Path' } }"
-					:records="$store.get.site.pages"
-					@modify="$router.push(`edit/${$event}`)"
-					@delete="alert('todo')"
-				>
-					<span slot="noResults">No pages</span>
-				</CrudList>
-
-			</v-card-text>
-			<v-card-text class="text-xs-right">
-
-				<v-btn primary @click.native.stop="$router.push(`edit`)">Create Page</v-btn>
-
-			</v-card-text>
-		</v-card>
-
-	</div>
+	<CrudList
+		:fields="fields"
+		:records="records"
+		@modify="$router.push(`edit/${$event}`)"
+		@delete="alert('todo')"
+	>
+		<span slot="titleText">Configure Pages</span>
+		<span slot="noResultsText">No pages</span>
+		<span slot="createButtonText">Create Page</span>
+	</CrudList>
 </template>
 
 <script>
 
+	import fields from './PageCommon'
+
 	export default {
+		computed: {
+			fields() {
+				return fields
+			},
+			records() {
+				return this.$store.get.site.pages
+			},
+		},
 	}
 
 </script>

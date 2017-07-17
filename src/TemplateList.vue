@@ -1,35 +1,29 @@
 <template>
-	<div>
-
-		<v-card>
-			<v-card-title class="primary white--text">
-				Configure Templates
-			</v-card-title>
-			<v-card-text>
-				
-				<CrudList
-					:fields="{ name: { order: 0, name: 'Name' } }"
-					:records="$store.get.site.templates"
-					@modify="$router.push(`edit/${$event}`)"
-					@delete="alert('todo')"
-				>
-					<span slot="noResults">No templates</span>
-				</CrudList>
-
-			</v-card-text>
-			<v-card-text class="text-xs-right">
-
-				<v-btn primary @click.native.stop="$router.push(`edit`)">Create Template</v-btn>
-
-			</v-card-text>
-		</v-card>
-
-	</div>
+	<CrudList
+		:fields="fields"
+		:records="records"
+		@modify="$router.push(`edit/${$event}`)"
+		@delete="alert('todo')"
+	>
+		<span slot="titleText">Configure Templates</span>
+		<span slot="noResultsText">No templates</span>
+		<span slot="createButtonText">Create Template</span>
+	</CrudList>
 </template>
 
 <script>
 
+	import fields from './TemplateCommon'
+
 	export default {
+		computed: {
+			fields() {
+				return fields
+			},
+			records() {
+				return this.$store.get.site.templates
+			},
+		},
 	}
 
 </script>

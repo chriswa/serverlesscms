@@ -66,7 +66,6 @@
 			previewWidthPx()	{ return this.isPreviewOpen ? this.previewWidth + 'px' : '0' },
 		},
 		components: {
-			NavMenuLink:  	require('./components/NavMenuLink.vue'),
 			PreviewDrawer:	require('./PreviewDrawer.vue'),
 		},
 		watch: {

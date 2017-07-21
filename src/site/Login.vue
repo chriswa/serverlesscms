@@ -43,7 +43,6 @@
 </template>
 
 <script>
-	import firebase from './firebase-integration'
 
 	export default {
 		data() {

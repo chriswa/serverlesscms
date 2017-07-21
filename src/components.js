@@ -1,15 +1,17 @@
-var componentsToLoad = [
+var componentsToLoad = {
 	
-	// generic stuff
-	'BasicDialog', 'MyDataTable', 'LoadingIndicator',
+	'gui/': [
+		'BasicDialog', 'MyDataTable', 'LoadingIndicator', 'NavMenuLink',
+	],
 
-	// crud list and subcomponents
-	'CrudList', 'CrudShowText',
+	'crud/': [
+		'CrudList', 'CrudShowText',
+		'CrudEdit', 'CrudEditTextfield', 'CrudEditTextbox',
+	],
 	
-	// crud edit and subcomponents
-	'CrudEdit', 'CrudEditTextfield',
-	
-]
-_.each(componentsToLoad, componentName => {
-	Vue.component(componentName, require(`./components/${componentName}.vue`))
+}
+_.each(componentsToLoad, (componentNames, dir) => {
+	_.each(componentNames, componentName => {
+		Vue.component(componentName, require(`./${dir}${componentName}.vue`))
+	})
 })

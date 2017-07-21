@@ -22,8 +22,7 @@
 </template>
 
 <script>
-
-	import FirebaseRefManager from './FirebaseRefManager'
+	import FirebaseRefManager from '../util/FirebaseRefManager'
 
 	export default {
 		props: [ "sectionId", "recordId" ],

@@ -1,5 +1,5 @@
 // init firebase
-import firebase from './firebase-integration'
+import firebase from './util/firebase-integration'
 window.firebase = firebase
 window.fireDB = firebase.database()
 
@@ -12,7 +12,7 @@ import Vue from 'vue'
 Vue.use(require('vuetify'))
 Vue.use(require('vue-router'))
 //Vue.use(require('vuex')) // already called by script tag include
-Vue.use(require('./vuefire-custom'))
+Vue.use(require('./util/vuefire-custom'))
 require('./components') // load global vue components
 
 // configure vuex
@@ -30,5 +30,5 @@ window.root = new Vue({
 	store,
 	router,
 	el: '#app',
-	render: h => h(require('./App.vue'))
+	render: h => h(require('./site/App.vue'))
 })

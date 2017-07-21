@@ -74,10 +74,9 @@
 			}
 		},
 		components: {
-			Login:      	require('./Login.vue'),
-			NavMenuLink:	require('./components/NavMenuLink.vue'),
-			AppLayout:  	require('./AppLayout.vue'),
-			Preview:    	require('./Preview.vue'),
+			Login:    	require('./Login.vue'),
+			AppLayout:	require('../gui/AppLayout.vue'),
+			Preview:  	require('./Preview.vue'),
 		},
 		computed: {
 			account()       	{ return this.$store.get.account                                  	},

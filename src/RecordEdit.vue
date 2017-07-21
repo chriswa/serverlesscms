@@ -9,15 +9,12 @@
 			<span v-if="isSingleRecordSection">
 				{{ section.name }}
 			</span>
-			<span v-else-if="isNewRecord">
-				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; create {{ recordTitle }}
-			</span>
 			<span v-else>
-				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> &mdash; modify {{ recordTitle }}
+				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> <span v-if="loaded">&mdash; {{ recordTitle || '(untitled)' }}</span>
 			</span>
 		</span>
 		<div slot="buttons">
-			<v-btn :disabled="isUnchanged" @click.native.stop="save">Save</v-btn>
+			<v-btn :disabled="isUnchanged" @click.native.stop="save">{{ isNewRecord ? 'Create' : 'Update' }}</v-btn>
 			<v-btn :disabled="isUnchanged" @click.native.stop="init" v-if="isSingleRecordSection">Cancel</v-btn>
 			<v-btn :disabled="false"       @click.native.stop="gotoListPage" v-else>Cancel</v-btn>
 		</div>
@@ -38,43 +35,35 @@
 			}
 		},
 		computed: {
-			site()                 	{ return this.$store.get.site                                  	},
-			sections()             	{ return this.site.sections                                    	},
-			section()              	{ return this.sections[this.sectionId]                         	},
-			fields()               	{ return this.section.fields                                   	},
-			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()    	},
-			titleField()           	{ return this.section.titleField                               	},
-			isSingleRecordSection()	{ return this.section.type === 'single'                        	},
-			isNewRecord()          	{ return !this.isSingleRecordSection && !this.recordId         	},
-			recordTitle()          	{ return this.loaded ? this.recordScratch[this.titleField] : ''	},
-			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordScratch)      	},
+			site()                 	{ return this.$store.get.site                                         	},
+			sections()             	{ return this.site.sections                                           	},
+			section()              	{ return this.sections[this.sectionId]                                	},
+			fields()               	{ return this.section.fields                                          	},
+			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()           	},
+			titleField()           	{ return this.section.titleField                                      	},
+			isSingleRecordSection()	{ return this.section.type === 'single'                               	},
+			isNewRecord()          	{ return !this.isSingleRecordSection && !this.recordId                	},
+			recordTitle()          	{ return this.loaded ? this.recordScratch[this.titleField] : undefined	},
+			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordScratch)             	},
 		},
 		mounted() {
-			this.init()
-		},
-		watch: {
-			$route(to, from) {
-				this.init()
-			},
-		},
-		methods: {
-			init() {
-				var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
-				if (recordIdToLoad) {
-					this.loaded = false
-					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
-						this.recordSource 	= snapshot.val()
-						this.recordScratch	= _.clone(this.recordSource)
-						this.loaded       	= true
-					})
-				}
-				else {
-					// creating a new record
-					this.recordSource 	= _.mapValues(this.fields, () => { return "" })
+			var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
+			if (recordIdToLoad) {
+				this.loaded = false
+				fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
+					this.recordSource 	= snapshot.val()
 					this.recordScratch	= _.clone(this.recordSource)
 					this.loaded       	= true
-				}
-			},
+				})
+			}
+			else {
+				// creating a new record
+				this.recordSource 	= _.mapValues(this.fields, () => { return "" })
+				this.recordScratch	= _.clone(this.recordSource)
+				this.loaded       	= true
+			}
+		},
+		methods: {
 			gotoListPage() {
 				this.$router.push(`/record/${this.sectionId}/`)
 			},

@@ -17,7 +17,7 @@
 						<tr v-for="[ recordId, record ] in sortedRecords">
 
 							<td v-for="[ fieldId, field ] in sortedFields">
-								<component :is="components[fieldId] || 'CrudShowText'" :value="record[fieldId]"></component>
+								<component :is="components[field.type] || 'CrudShowText'" :value="record[fieldId]"></component>
 							</td>
 
 							<td align="right" width="140">

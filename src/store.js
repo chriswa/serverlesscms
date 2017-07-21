@@ -195,29 +195,6 @@ const store = new Vuex.Store({
 	},
 })
 
-store.get = function(moduleId, keyId) {
-	// support calling without a moduleId; i.e. store.get(keyId) should result in store.get(undefined, keyId)
-	if (keyId === undefined) {
-		keyId   	= moduleId
-		moduleId	= undefined
-	}
-
-	// first, check the state to see if the requested key is available there...
-	var state = moduleId ? store.state[moduleId] : store.state
-	if (state.hasOwnProperty(keyId)) {
-		return state[keyId]
-	}
-
-	// if not, next check the getters...
-	var qualifiedGetter = (moduleId ? moduleId + '/' : '') + keyId
-	if (store.getters.hasOwnProperty(qualifiedGetter)) {
-		return store.getters[qualifiedGetter]
-	}
-
-	// 
-	return undefined
-}
-
 store.get = Object.create(store.state)
 _(store.getters)
 .keys()

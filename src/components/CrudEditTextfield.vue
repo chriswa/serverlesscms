@@ -1,13 +1,21 @@
 <template>
 	<div>
-		<v-text-field :value="value" @input="$emit('input', $event)" single-line hide-details></v-text-field>
+		<v-text-field
+			:label="label"
+			:value="value"
+			@input="$emit('input', $event)"
+		></v-text-field>
 	</div>
 </template>
 
 <script>
 	export default {
-		props: [ 'value' ],
+		props: [ 'value', 'label' ],
 		methods: {
 		},
 	}
 </script>
+
+<style scoped>
+	.input-group { margin: 0; }
+</style>

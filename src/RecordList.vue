@@ -31,25 +31,14 @@
 		},
 		mounted() {
 			this.firebaseRefManager = new FirebaseRefManager()
-			this.init()
+			this.loaded = false
+			this.firebaseRefManager.add(fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).limitToFirst(100), 'value', snapshot => {
+				this.records = snapshot.val()
+				this.loaded = true
+			})
 		},
 		beforeDestroy() {
 			this.firebaseRefManager.removeAll()
-		},
-		watch: {
-			$route(to, from) {
-				this.firebaseRefManager.removeAll()
-				this.init()
-			},
-		},
-		methods: {
-			init() {
-				this.loaded = false
-				this.firebaseRefManager.add(fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).limitToFirst(100), 'value', snapshot => {
-					this.records = snapshot.val()
-					this.loaded = true
-				})
-			},
 		},
 	}
 

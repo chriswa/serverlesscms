@@ -7,25 +7,26 @@
 
 			<v-card-text v-if="loaded">
 
-				<MyDataTable>
-					<tbody>
-						<tr v-for="[fieldId, field] in sortedFields">
+				<div style="height: 20px;"></div>
 
-							<td>
-								{{ field.name }}
-							</td>
-							<td>
-								<component :is="components[fieldId] || 'CrudEditTextfield'" :value="record[fieldId]" @input="onInput(fieldId, $event)"></component>
-							</td>
+				<div v-for="[fieldId, field] in sortedFields">
 
-						</tr>
-					</tbody>
-				</MyDataTable>
+					<component
+						:is="components[field.type] || 'CrudEditTextfield'"
+						:value="record[fieldId]"
+						:label="field.name"
+						@input="onInput(fieldId, $event)"
+						></component>
 
-			</v-card-text>
-			<v-card-text class="text-xs-right" v-if="loaded">
+				</div>
 
-				<slot name="buttons"></slot>
+				<div style="height: 20px;"></div>
+
+				<div class="text-xs-right">
+
+					<slot name="buttons"></slot>
+
+				</div>
 				
 			</v-card-text>
 		</v-card>
@@ -49,7 +50,7 @@
 		},
 		methods: {
 			onInput(fieldId, newValue) {
-				this.$emit('fieldUpdate', fieldId, $event)
+				this.$emit('fieldUpdate', fieldId, newValue)
 			},
 		},
 	}

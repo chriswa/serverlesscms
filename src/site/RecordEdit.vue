@@ -46,28 +46,31 @@
 			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordScratch)             	},
 		},
 		mounted() {
-			var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
-			if (recordIdToLoad) {
-				this.loaded = false
-				fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
-					this.recordSource 	= snapshot.val()
-					this.recordScratch	= _.clone(this.recordSource)
-					this.loaded       	= true
-				})
-			}
-			else {
-				// creating a new record
-				this.recordSource 	= _.mapValues(this.fields, () => { return "" })
-				this.recordScratch	= _.clone(this.recordSource)
-				this.loaded       	= true
-			}
+			this.init()
 		},
 		methods: {
+			init() {
+				var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
+				if (recordIdToLoad) {
+					this.loaded = false
+					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
+						this.recordSource 	= snapshot.val()
+						this.recordScratch	= _.clone(this.recordSource)
+						this.loaded       	= true
+					})
+				}
+				else {
+					// creating a new record
+					this.recordSource 	= _.mapValues(this.fields, () => { return "" })
+					this.recordScratch	= _.clone(this.recordSource)
+					this.loaded       	= true
+				}
+			},
 			gotoListPage() {
 				this.$router.push(`/record/${this.sectionId}/`)
 			},
 			onFieldUpdate(fieldId, newValue) {
-				this.recordScratch[fieldId] = newValue
+				Vue.set(this.recordScratch, fieldId, newValue)
 			},
 			save() {
 				var recordIdToSave = this.isSingleRecordSection ? 'single' : this.recordId
@@ -76,11 +79,11 @@
 				}
 				else {
 					var objectToSave = _.clone(this.recordScratch) // { ...this.recordScratch }
-					objectToSave.updatedDate = Firebase.ServerValue.TIMESTAMP
+					objectToSave.updatedDate = firebase.database.ServerValue.TIMESTAMP
 					if (this.isNewRecord) {
-						objectToSave.createDate = Firebase.ServerValue.TIMESTAMP
+						objectToSave.createDate = firebase.database.ServerValue.TIMESTAMP
 					}
-					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}`).set(objectToSave)
+					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}`).update(objectToSave)
 				}
 				if (this.isSingleRecordSection) {
 					this.init()

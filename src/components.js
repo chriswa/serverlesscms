@@ -5,8 +5,8 @@ var componentsToLoad = {
 	],
 
 	'crud/': [
-		'CrudList', 'CrudShowText',
-		'CrudEdit', 'CrudEditTextfield', 'CrudEditTextbox',
+		'CrudList', // 'CrudShowText',
+		'CrudEdit', // 'CrudEditTextfield', 'CrudEditTextbox', 'CrudEditSelect',
 	],
 	
 }

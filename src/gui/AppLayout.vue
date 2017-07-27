@@ -33,7 +33,7 @@
 			<v-spacer></v-spacer>
 
 			<v-btn icon @click.native.stop="isPreviewDesiredOpen = !isPreviewDesiredOpen" v-tooltip:left="{ html: isPreviewDesiredOpen ? 'Hide Preview' : 'Preview Site' }" v-if="allowPreview">
-				<v-icon medium dark mdi>{{ isPreviewDesiredOpen ? 'eye-off' : 'eye' }}</v-icon>
+				<v-icon medium dark>{{ isPreviewDesiredOpen ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
 			</v-btn>
 
 		</v-toolbar>

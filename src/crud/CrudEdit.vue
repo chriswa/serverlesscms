@@ -12,11 +12,11 @@
 				<div v-for="[fieldId, field] in sortedFields">
 
 					<component
-						:is="components[field.type] || 'CrudEditTextfield'"
+						:is="getFieldComponent(field.type)"
+						:field="field"
 						:value="record[fieldId]"
-						:label="field.name"
 						@input="onInput(fieldId, $event)"
-						></component>
+					></component>
 
 				</div>
 
@@ -38,12 +38,12 @@
 </template>
 
 <script>
+	import fieldComponents from './crudFieldTypes.js'
 	export default {
 		props: {
-			loaded:    	{ type: Boolean, default: true, },
-			fields:    	{ type: Object, required: true, },
-			record:    	{ type: Object, default: () => { return {} }, },
-			components:	{ type: Object, default: () => { return {} }, },
+			loaded:	{ type: Boolean, default: true, },
+			fields:	{ type: Object, required: true, },
+			record:	{ type: Object, default: () => { return {} }, },
 		},
 		computed: {
 			sortedFields()	{ return _(this.fields).toPairs().sortBy('1.order').value()	},
@@ -52,6 +52,7 @@
 			onInput(fieldId, newValue) {
 				this.$emit('fieldUpdate', fieldId, newValue)
 			},
+			getFieldComponent(type)	{ return fieldComponents[type] ? fieldComponents[type].edit : fieldComponents['text'].edit	}, 
 		},
 	}
 </script>

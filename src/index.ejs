@@ -18,34 +18,10 @@
 
 <!-- vuetify css requirements -->
 <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" rel="stylesheet" type="text/css">
-<link href="https://unpkg.com/vuetify@0.13.1/dist/vuetify.min.css" rel="stylesheet" type="text/css">
+<link href="https://unpkg.com/vuetify@0.14.7/dist/vuetify.min.css" rel="stylesheet" type="text/css">
+<!--<link href="/my-vuetify/vuetify.min.css" rel="stylesheet" type="text/css">--> <!-- custom build! -->
 <link href="https://cdn.materialdesignicons.com/1.9.32/css/materialdesignicons.min.css" media="all" rel="stylesheet" type="text/css" /><!-- optional: mdi -->
-<style>
-	/* fix textfield min-width issue */
-	.input-group__input > input {
-		width: 0; /* somehow this affects min-width instead of width?! */
-	}
-	/* opt out of this "feature" */
-	.navigation-drawer {
-		padding-bottom: 0;
-	}
-	/* fix height issues related to preview drawer and main div overflow */
-	body {
-		height: auto;
-		min-height: auto;
-		overflow: hidden;
-	}
-	body::-webkit-scrollbar {
-		display: none;
-	}
-	div.application {
-		min-height: auto;
-	}
-	/* zoom out slightly on very small screens (lazy responsive design) */
-	@media screen and (max-width: 380px) {
-		body { zoom: 0.85; }
-	}
-</style>
+<link href="/style.css" rel="stylesheet" type="text/css">
 
 <!-- only required element for html5 is title -->
 <title>ServerlessCMS</title>
@@ -64,9 +40,11 @@
 <script src="https://unpkg.com/vue@2.3.4"></script>
 <script src="https://unpkg.com/vuex@2.3.1"></script>
 <script src="https://unpkg.com/vue-router@2.5.3/dist/vue-router.js"></script>
-<script src="https://unpkg.com/vuetify@0.13.1/dist/vuetify.min.js"></script>
+<script src="https://unpkg.com/vuetify@0.14.7/dist/vuetify.min.js"></script>
+<!--<script src="/my-vuetify/vuetify.js"></script>--> <!-- custom build! -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.6.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Vue.Draggable/2.13.1/vuedraggable.min.js"></script>
 <script src="https://unpkg.com/dustjs-linkedin@2.7.5/dist/dust-full.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
 
 <!-- webpack bundle script tag inserted here -->

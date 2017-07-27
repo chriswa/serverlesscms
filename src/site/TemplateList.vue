@@ -17,12 +17,9 @@
 
 	export default {
 		computed: {
-			fields() {
-				return fields
-			},
-			records() {
-				return this.$store.get.site.templates
-			},
+			fields() 	{ return fields              	},
+			site()   	{ return this.$store.get.site	},
+			records()	{ return this.site.templates 	},
 		},
 	}
 

@@ -1,7 +1,7 @@
 <template>
 	<v-list-tile @click.native.stop="onClick">
 		<v-list-tile-action>
-			<v-icon :fa="isFa" :mdi="isMdi">{{ iconName }}</v-icon>
+			<v-icon>{{ icon }}</v-icon>
 		</v-list-tile-action>
 		<v-list-tile-content>
 			<v-list-tile-title>
@@ -23,15 +23,6 @@
 			},
 		},
 		computed: {
-			isFa() {
-				return !!this.icon.match(/^fa-/)
-			},
-			isMdi() {
-				return !!this.icon.match(/^mdi-/)
-			},
-			iconName() {
-				return this.icon.replace(/^(?:fa|mdi)-/, '')
-			},
 		},
 	}
 </script>

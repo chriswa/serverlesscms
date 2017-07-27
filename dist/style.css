@@ -1,0 +1,39 @@
+.flex { display: flex }
+.auto { flex: 1 1 auto }
+.column { flex-direction: column }
+.wrap { flex-wrap: wrap }
+.align-start { align-items: flex-start }
+.align-end { align-items: flex-end }
+.align-center { align-items: center }
+.align-baseline { align-items: baseline }
+.align-stretch { align-items: stretch }
+.justify-start { justify-content: flex-start }
+.justify-end { justify-content: flex-end }
+.justify-center { justify-content: center }
+.justify-between { justify-content: space-between }
+.justify-around { justify-content: space-around }
+
+/* fix textfield min-width issue */
+.input-group__input > input {
+	width: 0; /* somehow this affects min-width instead of width?! */
+}
+/* opt out of this "feature" */
+.navigation-drawer {
+	padding-bottom: 0;
+}
+/* fix height issues related to preview drawer and main div overflow */
+body {
+	height: auto;
+	min-height: auto;
+	overflow: hidden;
+}
+body::-webkit-scrollbar {
+	display: none;
+}
+div.application {
+	min-height: auto;
+}
+/* zoom out slightly on very small screens (lazy responsive design) */
+@media screen and (max-width: 380px) {
+	body { zoom: 0.85; }
+}

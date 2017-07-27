@@ -1,3 +1,6 @@
+import FirebaseRefManager from './util/FirebaseRefManager'
+const firebaseRefManager = new FirebaseRefManager()
+
 firebase.auth().onAuthStateChanged( user => {
 	store.dispatch('site/onAuthChange', user)
 })
@@ -77,6 +80,9 @@ const accountModule = {
 		onAuthChange({ commit, dispatch, state, rootState }, firebaseUser) {
 			return new Promise((resolve, reject) => {
 
+				// remove any firebase subscriptions from old auth
+				firebaseRefManager.removeAll()
+
 				if (!firebaseUser) { // not logged in?
 					commit('logout')
 					return resolve()
@@ -84,24 +90,32 @@ const accountModule = {
 
 				commit('start', "Loading your account")
 
-				fireDB.ref(`/users/${firebaseUser.uid}`).on('value', snapshot => { // TODO: unregister this firebase event handler next time authChange runs?
-					var userData = snapshot.val()
-					commit('login', { firebaseUser, userData })
-					resolve()
-				})
+				firebaseRefManager.add(
+					fireDB.ref(`/users/${firebaseUser.uid}`),
+					'value',
+					snapshot => {
+						var userData = snapshot.val()
+						commit('login', { firebaseUser, userData })
+						resolve()
+					}
+				)
 			})
 		},
 	},
 }
 
+
+
 const siteModule = {
 	namespaced: true,
 	state: {
-		ready:   	false,
-		loaded:  	false,
-		siteId:  	undefined,
-		sections:	undefined,
-		meta:    	undefined,
+		ready:    	false,
+		loaded:   	false,
+		siteId:   	undefined,
+		sections: 	undefined,
+		pages:    	undefined,
+		templates:	undefined,
+		meta:     	undefined,
 	},
 	getters: {
 		loaded(state, getters, rootState, rootGetters) {
@@ -110,17 +124,23 @@ const siteModule = {
 		},
 	},
 	mutations: {
-		startLoading(state) {
-			state.ready   	= false
-			state.siteId  	= undefined
-			state.sections	= undefined
-			state.meta    	= undefined
+		clearSiteData(state) {
+			state.ready    	= true
+			state.siteId   	= undefined
+			state.sections 	= undefined
+			state.pages    	= undefined
+			state.templates	= undefined
+			state.meta     	= undefined
 		},
-		setSiteData(state, { siteId, section, meta }) {
-			state.ready   	= true
-			state.siteId  	= siteId
-			state.sections	= section
-			state.meta    	= meta
+		startLoading(state, siteId) {
+			state.ready 	= false
+			state.siteId	= siteId
+		},
+		setSiteDataKey(state, { siteKey, data }) {
+			state[siteKey] = data
+		},
+		finishLoading(state) {
+			state.ready	= true
 		},
 	},
 	actions: {
@@ -133,28 +153,33 @@ const siteModule = {
 					var siteId = rootState.account.userData ? rootState.account.userData.site : undefined
 					if (siteId) {
 					
-						commit('startLoading')
+						commit('startLoading', siteId)
 
-						var sectionPromise = new Promise((resolve, reject) => {
-							fireDB.ref(`/sites/${siteId}/sections`).on('value', snapshot => {
-								resolve(snapshot.val())
+						var siteKeysToLoad = [ 'sections', 'pages', 'templates', 'meta' ]
+
+						var siteKeyPromises = _.map(siteKeysToLoad, siteKey => {
+							return new Promise((resolve, reject) => {
+								firebaseRefManager.add(
+									fireDB.ref(`/sites/${siteId}/${siteKey}`),
+									'value',
+									snapshot => {
+										// n.b. this will continue to be called as changes are made
+										var data = snapshot.val() || {}
+										commit('setSiteDataKey', { siteKey, data })
+										resolve()
+									}
+								)
 							})
 						})
-	
-						var metaPromise = new Promise((resolve, reject) => {
-							fireDB.ref(`/sites/${rootState.account.userData.site}/meta`).on('value', snapshot => {
-								resolve(snapshot.val())
-							})
-						})
-	
-						Promise.all([sectionPromise, metaPromise]).then(([section, meta]) => {
-							commit('setSiteData', { siteId, section, meta })
+
+						Promise.all(siteKeyPromises).then( () => {
+							commit('finishLoading')
 							resolveTop()
 						})
 
 					}
 					else {
-						commit('setSiteData', {})
+						commit('clearSiteData')
 						resolveTop()
 					}
 				})

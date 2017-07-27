@@ -1,10 +1,11 @@
 <template>
 	<div>
-		<v-text-field
+		<v-select
 			:label="field.name"
+			:items="field.items"
 			:value="value"
 			@input="$emit('input', $event)"
-		></v-text-field>
+		></v-select>
 	</div>
 </template>
 

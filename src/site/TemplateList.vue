@@ -2,7 +2,8 @@
 	<CrudList
 		:fields="fields"
 		:records="records"
-		@modify="$router.push(`edit/${$event}`)"
+		@modify="modify($event)"
+		@create="create"
 		@delete="alert('todo')"
 	>
 		<span slot="titleText">Configure Templates</span>
@@ -20,6 +21,14 @@
 			fields() 	{ return fields              	},
 			site()   	{ return this.$store.get.site	},
 			records()	{ return this.site.templates 	},
+		},
+		methods: {
+			modify(templateId) {
+				this.$router.push({ name: 'TemplateEdit', params: { templateId }})
+			},
+			create() {
+				this.$router.push({ name: 'TemplateCreate' })
+			},
 		},
 	}
 

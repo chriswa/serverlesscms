@@ -1,84 +1,37 @@
-var routes = [
-	{
-		path:      '/', 
-		redirect:  to => {
-			console.log('redirecting / to /dashboard')
-			return '/dashboard'
-		},
-	},
-	{
-		path:      '/dashboard', 
-		component: require('./site/Dashboard.vue'),
-	},
-	{
-		path:      '/record/:sectionId/', 
-		component: require('./site/RecordList.vue'),
-		props:     true,
-	},
-	{
-		path:      '/record/:sectionId/edit/:recordId', 
-		component: require('./site/RecordEdit.vue'),
-		props:     true,
-	},
-	{
-		path:      '/record/:sectionId/edit',
-		component: require('./site/RecordEdit.vue'),
-		props:     true,
-	},
+var routes = []
 
-	{
-		path:      '/sections/',
-		component: require('./site/SectionList.vue'),
-		props:     true,
-	},
-	{
-		path:      '/sections/edit/:sectionId',
-		component: require('./site/SectionEdit.vue'),
-		props:     true,
-	},
-	{
-		path:      '/sections/edit',
-		component: require('./site/SectionEdit.vue'),
-		props:     true,
-	},
+routes.push({
+	path:	    '/', 
+	redirect: to => {
+		console.log('redirecting / to /dashboard')
+		return '/dashboard'
+	}
+})
 
-	{
-		path:      '/pages/',
-		component: require('./site/PageList.vue'),
-		props:     true,
-	},
-	//{
-	//	path:      '/pages/edit/:pageId',
-	//	component: require('./site/PageEdit.vue'),
-	//	props:     true,
-	//},
-	//{
-	//	path:      '/pages/edit',
-	//	component: require('./site/PageEdit.vue'),
-	//	props:     true,
-	//},
+const siteRoutes = [
+	[ 'Dashboard', '/dashboard', require('./site/Dashboard.vue')	],
 
-	{
-		path:      '/templates/',
-		component: require('./site/TemplateList.vue'),
-		props:     true,
-	},
-	{
-		path:      '/templates/edit/:templateId',
-		component: require('./site/TemplateEdit.vue'),
-		props:     true,
-	},
-	{
-		path:      '/templates/edit',
-		component: require('./site/TemplateEdit.vue'),
-		props:     true,
-	},
+	[ 'RecordList',  	'/record/:sectionId/',              	require('./site/RecordList.vue')	],
+	[ 'RecordEdit',  	'/record/:sectionId/edit/:recordId',	require('./site/RecordEdit.vue')	],
+	[ 'RecordCreate',	'/record/:sectionId/edit',          	require('./site/RecordEdit.vue')	],
 
-	{
-		path:     	'*',
-		component:	require('./site/RouteNotFound.vue'),
-		props:    	true,
-	},
+	[ 'SectionList',  	'/sections/',               	require('./site/SectionList.vue')	],
+	[ 'SectionEdit',  	'/sections/edit/:sectionId',	require('./site/SectionEdit.vue')	],
+	[ 'SectionCreate',	'/sections/edit',           	require('./site/SectionEdit.vue')	],
+
+	[ 'PageList',    	'/pages/',            	require('./site/PageList.vue')	],
+	//[ 'PageEdit',  	'/pages/edit/:pageId',	require('./site/PageEdit.vue')	],
+	//[ 'PageCreate',	'/pages/edit',        	require('./site/PageEdit.vue')	],
+
+	[ 'TemplateList',  	'/templates/',                	require('./site/TemplateList.vue')	],
+	[ 'TemplateEdit',  	'/templates/edit/:templateId',	require('./site/TemplateEdit.vue')	],
+	[ 'TemplateCreate',	'/templates/edit',            	require('./site/TemplateEdit.vue')	],
 ]
+
+_.each(siteRoutes, ([ name, path, component ]) => {
+	routes.push({ name, path, component, props: true })
+})
+
+routes.push({ path:	'*', component:	require('./site/RouteNotFound.vue') })
 
 module.exports = routes

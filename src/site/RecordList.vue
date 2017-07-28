@@ -3,7 +3,8 @@
 		:loaded="loaded"
 		:fields="fields"
 		:records="records"
-		@modify="$router.push(`edit/${$event}`)"
+		@modify="modify($event)"
+		@create="create"
 		@delete="alert('todo')"
 	>
 		<span slot="titleText">{{ section.name }}</span>
@@ -39,6 +40,14 @@
 		},
 		beforeDestroy() {
 			this.firebaseRefManager.removeAll()
+		},
+		methods: {
+			modify(recordId) {
+				this.$router.push({ name: 'RecordEdit', params: { sectionId: this.sectionId, recordId }})
+			},
+			create() {
+				this.$router.push({ name: 'RecordCreate', params: { sectionId: this.sectionId } })
+			},
 		},
 	}
 

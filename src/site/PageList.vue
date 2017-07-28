@@ -2,7 +2,8 @@
 	<CrudList
 		:fields="fields"
 		:records="records"
-		@modify="$router.push(`edit/${$event}`)"
+		@modify="modify($event)"
+		@create="create"
 		@delete="alert('todo')"
 	>
 		<span slot="titleText">Configure Pages</span>
@@ -22,6 +23,14 @@
 			},
 			records() {
 				return this.$store.get.site.pages
+			},
+		},
+		methods: {
+			modify(pageId) {
+				this.$router.push({ name: 'PageEdit', params: { pageId }})
+			},
+			create() {
+				this.$router.push({ name: 'PageCreate' })
 			},
 		},
 	}

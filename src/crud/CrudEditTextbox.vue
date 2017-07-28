@@ -40,14 +40,5 @@
 <style>
 	.monospacedTextArea textarea {
 		font-family: monospace;
-		background-color: #333;
-		padding: 5px;
-		caret-color: white;
-	}
-	.application--light .monospacedTextArea .input-group textarea {
-		color: #fff;
-	}
-	.monospacedTextArea .input-group__details:after {
-		background-color: orange;
 	}
 </style>

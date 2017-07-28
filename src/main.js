@@ -26,7 +26,7 @@ const router = new VueRouter({
 })
 
 // init vue with router config on App
-window.root = new Vue({
+window.app = new Vue({
 	store,
 	router,
 	el: '#app',

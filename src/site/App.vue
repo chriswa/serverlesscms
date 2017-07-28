@@ -11,29 +11,29 @@
 
 				<v-divider :inset="false"></v-divider>
 
-				<!--<NavMenuLink @click="linkTo('/preview')"	icon="mdi-eye"         	>Preview</NavMenuLink>-->
-				<NavMenuLink @click="linkTo('/publish')"    	icon="mdi-cloud-upload"	>Publish</NavMenuLink>
+				<!--<NavMenuLink @click="linkTo('FullPreview')"	icon="mdi-eye"         	>Preview</NavMenuLink>-->
+				<NavMenuLink @click="linkTo('Publish')"        	icon="mdi-cloud-upload"	>Publish</NavMenuLink>
 
 				<v-divider :inset="false"></v-divider>
 				
 				<template>
-					<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="linkTo(sectionContentLink(sectionId))">{{ section.name }}</NavMenuLink>
+					<NavMenuLink v-for="[ sectionId, section ] in sortedSections" :key="sectionId" @click="linkToSection(sectionId)">{{ section.name }}</NavMenuLink>
 				</template>
 
 				<v-divider :inset="false"></v-divider>
 
-				<NavMenuLink @click="linkTo('/sections/')" 	icon="mdi-database"         	>Configure Sections</NavMenuLink>
-				<NavMenuLink @click="linkTo('/pages/')"    	icon="mdi-sitemap"          	>Configure Pages</NavMenuLink>
-				<NavMenuLink @click="linkTo('/templates/')"	icon="mdi-format-align-left"	>Configure Templates</NavMenuLink>
-				<NavMenuLink @click="linkTo('/settings')"  	icon="settings"             	>Configure Settings</NavMenuLink>
+				<NavMenuLink @click="linkTo('SectionList')" 	icon="mdi-database"         	>Configure Sections</NavMenuLink>
+				<NavMenuLink @click="linkTo('PageList')"    	icon="mdi-sitemap"          	>Configure Pages</NavMenuLink>
+				<NavMenuLink @click="linkTo('TemplateList')"	icon="mdi-format-align-left"	>Configure Templates</NavMenuLink>
+				<NavMenuLink @click="linkTo('Settings')"    	icon="settings"             	>Configure Settings</NavMenuLink>
 
 			</template>
 
 			<v-divider :inset="false"></v-divider>
 			
-			<!--<NavMenuLink v-if="isLoggedIn"	@click="linkTo('/my-account')"	icon="account_box"	>My Account</NavMenuLink>-->
-			<NavMenuLink v-if="isLoggedIn"    	@click="logout"               	icon="exit_to_app"	>Logout ({{ account.email }})</NavMenuLink>
-			<NavMenuLink v-if="!isLoggedIn"   	@click=""                     	icon="account_box"	>Login</NavMenuLink>
+			<!--<NavMenuLink v-if="isLoggedIn"	@click="linkTo('MyAccount')"	icon="account_box"	>My Account</NavMenuLink>-->
+			<NavMenuLink v-if="isLoggedIn"    	@click="logout"             	icon="exit_to_app"	>Logout ({{ account.email }})</NavMenuLink>
+			<NavMenuLink v-if="!isLoggedIn"   	@click=""                   	icon="account_box"	>Login</NavMenuLink>
 
 		</template>
 
@@ -87,16 +87,21 @@
 			sortedSections()	{ return _(this.site.sections).toPairs().sortBy('1.order').value()	},
 		},
 		methods: {
-			sectionContentLink(sectionId) {
-				return this.site.sections[sectionId].type === 'single' ? `/record/${sectionId}/edit` : `/record/${sectionId}/`
-			},
 			logout() {
 				firebase.auth().signOut()
-				this.linkTo('/')
+				this.linkTo('Dashboard')
 			},
-			linkTo(url) {
-				this.$router.push(url)
+			linkTo(name, params = {}) {
+				this.$router.push({ name, params })
 				this.isTempNavShown = false
+			},
+			linkToSection(sectionId) {
+				if (this.site.sections[sectionId].type === 'single') {
+					this.linkTo('RecordEdit', { sectionId, recordId: 'single' })
+				}
+				else {
+					this.linkTo('RecordList', { sectionId })
+				}
 			},
 		},
 	}

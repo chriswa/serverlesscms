@@ -1,12 +1,12 @@
 export default {
 	name: {
-		order: 0,
-		name: 'Name',
+		order:	0,
+		name: 	'Name',
 	},
 	content: {
-		order: 0,
-		name: 'Content',
-		type: 'clob',
-		ace: true,
+		order:	0,
+		name: 	'Content',
+		type: 	'clob',
+		ace:  	true,
 	},
 }

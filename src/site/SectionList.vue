@@ -2,7 +2,8 @@
 	<CrudList
 		:fields="fields"
 		:records="records"
-		@modify="$router.push(`edit/${$event}`)"
+		@modify="modify($event)"
+		@create="create"
 		@delete="alert('todo')"
 	>
 		<span slot="titleText">Configure Sections</span>
@@ -22,6 +23,14 @@
 			},
 			records() {
 				return this.$store.get.site.sections
+			},
+		},
+		methods: {
+			modify(sectionId) {
+				this.$router.push({ name: 'SectionEdit', params: { sectionId }})
+			},
+			create() {
+				this.$router.push({ name: 'SectionCreate' })
 			},
 		},
 	}

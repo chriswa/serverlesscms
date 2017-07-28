@@ -45,7 +45,7 @@
 			</v-card-text>
 			<v-card-text class="text-xs-right" v-if="loaded">
 
-				<v-btn primary @click.native.stop="$router.push(`edit`)"><slot name="createButtonText">Create New</slot></v-btn>
+				<v-btn primary @click.native.stop="$emit('create')"><slot name="createButtonText">Create New</slot></v-btn>
 
 			</v-card-text>
 		</v-card>

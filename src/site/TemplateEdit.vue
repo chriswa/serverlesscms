@@ -46,7 +46,7 @@
 				this.recordScratch = _.clone(this.recordSource)
 			},
 			gotoListPage() {
-				this.$router.push(`/templates/`)
+				this.$router.push(`/templates`)
 			},
 			onFieldUpdate(fieldId, newValue) {
 				Vue.set(this.recordScratch, fieldId, newValue)

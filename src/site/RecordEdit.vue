@@ -67,7 +67,7 @@
 				}
 			},
 			gotoListPage() {
-				this.$router.push(`/record/${this.sectionId}/`)
+				this.$router.push(`/record/${this.sectionId}`)
 			},
 			onFieldUpdate(fieldId, newValue) {
 				Vue.set(this.recordScratch, fieldId, newValue)

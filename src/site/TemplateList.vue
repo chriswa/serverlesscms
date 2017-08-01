@@ -4,7 +4,7 @@
 		:records="records"
 		@modify="modify($event)"
 		@create="create"
-		@delete="alert('todo')"
+		@remove="remove($event)"
 	>
 		<span slot="titleText">Configure Templates</span>
 		<span slot="noResultsText">No templates</span>
@@ -18,9 +18,8 @@
 
 	export default {
 		computed: {
-			fields() 	{ return fields              	},
-			site()   	{ return this.$store.get.site	},
-			records()	{ return this.site.templates 	},
+			fields() 	{ return fields                        	},
+			records()	{ return this.$store.get.site.templates	},
 		},
 		methods: {
 			modify(templateId) {
@@ -28,6 +27,9 @@
 			},
 			create() {
 				this.$router.push({ name: 'TemplateCreate' })
+			},
+			remove(templateId) {
+				alert('TODO')
 			},
 		},
 	}

@@ -45,14 +45,11 @@
 			this.init()
 		},
 		computed: {
-			fields() {
-				return fields
-			},
-			recordSource() {
-				return this.$store.get.site.sections[this.sectionId] || {}
-			},
-			isNewRecord()	{ return !this.sectionId                                 	},
-			isUnchanged()	{ return _.isEqual(this.recordSource, this.recordScratch)	},
+			fields()      	{ return fields                                          	},
+			site()        	{ return this.$store.get.site                            	},
+			isNewRecord() 	{ return !this.sectionId                                 	},
+			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordScratch)	},
+			recordSource()	{ return this.site.sections[this.sectionId] || {}        	},
 		},
 		methods: {
 			init() {

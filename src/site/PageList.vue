@@ -4,7 +4,7 @@
 		:records="records"
 		@modify="modify($event)"
 		@create="create"
-		@delete="alert('todo')"
+		@remove="remove($event)"
 	>
 		<span slot="titleText">Configure Pages</span>
 		<span slot="noResultsText">No pages</span>
@@ -18,12 +18,8 @@
 
 	export default {
 		computed: {
-			fields() {
-				return fields
-			},
-			records() {
-				return this.$store.get.site.pages
-			},
+			fields() 	{ return fields                    	},
+			records()	{ return this.$store.get.site.pages	},
 		},
 		methods: {
 			modify(pageId) {
@@ -31,6 +27,9 @@
 			},
 			create() {
 				this.$router.push({ name: 'PageCreate' })
+			},
+			remove(templateId) {
+				alert('TODO')
 			},
 		},
 	}

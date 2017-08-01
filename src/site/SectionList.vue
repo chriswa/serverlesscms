@@ -4,7 +4,7 @@
 		:records="records"
 		@modify="modify($event)"
 		@create="create"
-		@delete="alert('todo')"
+		@remove="remove($event)"
 	>
 		<span slot="titleText">Configure Sections</span>
 		<span slot="noResultsText">No sections</span>
@@ -18,12 +18,8 @@
 
 	export default {
 		computed: {
-			fields() {
-				return fields
-			},
-			records() {
-				return this.$store.get.site.sections
-			},
+			fields() 	{ return fields                       	},
+			records()	{ return this.$store.get.site.sections	},
 		},
 		methods: {
 			modify(sectionId) {
@@ -31,6 +27,9 @@
 			},
 			create() {
 				this.$router.push({ name: 'SectionCreate' })
+			},
+			remove(templateId) {
+				alert('TODO')
 			},
 		},
 	}

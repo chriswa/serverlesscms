@@ -33,13 +33,11 @@
 			this.init()
 		},
 		computed: {
-			fields()     	{ return fields                                          	},
-			site()       	{ return this.$store.get.site                            	},
-			isNewRecord()	{ return !this.templateId                                	},
-			isUnchanged()	{ return _.isEqual(this.recordSource, this.recordScratch)	},
-			recordSource() {
-				return this.$store.get.site.templates[this.templateId] || {}
-			},
+			fields()      	{ return fields                                          	},
+			site()        	{ return this.$store.get.site                            	},
+			isNewRecord() 	{ return !this.templateId                                	},
+			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordScratch)	},
+			recordSource()	{ return this.site.templates[this.templateId] || {}      	},
 		},
 		methods: {
 			init() {

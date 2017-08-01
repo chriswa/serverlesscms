@@ -5,7 +5,7 @@
 		:records="records"
 		@modify="modify($event)"
 		@create="create"
-		@delete="alert('todo')"
+		@remove="remove($event)"
 	>
 		<span slot="titleText">{{ section.name }}</span>
 		<span slot="noResultsText">No records</span>
@@ -47,6 +47,9 @@
 			},
 			create() {
 				this.$router.push({ name: 'RecordCreate', params: { sectionId: this.sectionId } })
+			},
+			remove(templateId) {
+				alert('TODO')
 			},
 		},
 	}

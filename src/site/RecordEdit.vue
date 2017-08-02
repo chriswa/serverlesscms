@@ -2,7 +2,7 @@
 	<CrudEdit
 		:loaded="loaded"
 		:fields="fields"
-		:record="recordScratch"
+		:record="recordWip"
 		@fieldUpdate="onFieldUpdate"
 	>
 		<span slot="titleText">
@@ -28,25 +28,28 @@
 		props: [ "sectionId", "recordId" ],
 		data() {
 			return {
-				loaded:       	false,
-				recordSource: 	undefined,
-				recordScratch:	undefined,
+				loaded:      	false,
+				recordSource:	undefined,
+				recordWip:   	undefined,
 			}
 		},
 		computed: {
-			site()                 	{ return this.$store.get.site                                         	},
-			sections()             	{ return this.site.sections                                           	},
-			section()              	{ return this.sections[this.sectionId]                                	},
-			fields()               	{ return this.section.fields                                          	},
-			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()           	},
-			titleField()           	{ return this.section.titleField                                      	},
-			isSingleRecordSection()	{ return this.section.type === 'single'                               	},
-			isNewRecord()          	{ return !this.isSingleRecordSection && !this.recordId                	},
-			recordTitle()          	{ return this.loaded ? this.recordScratch[this.titleField] : undefined	},
-			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordScratch)             	},
+			site()                 	{ return this.$store.get.site                                     	},
+			sections()             	{ return this.site.sections                                       	},
+			section()              	{ return this.sections[this.sectionId]                            	},
+			fields()               	{ return this.section.fields                                      	},
+			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()       	},
+			titleField()           	{ return this.section.titleField                                  	},
+			isSingleRecordSection()	{ return this.section.type === 'single'                           	},
+			isNewRecord()          	{ return !this.isSingleRecordSection && !this.recordId            	},
+			recordTitle()          	{ return this.loaded ? this.recordWip[this.titleField] : undefined	},
+			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordWip)             	},
 		},
 		mounted() {
 			this.init()
+		},
+		beforeDestroy() {
+			this.$store.commit('editPreview/clear')
 		},
 		methods: {
 			init() {
@@ -54,31 +57,40 @@
 				if (recordIdToLoad) {
 					this.loaded = false
 					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
-						this.recordSource 	= snapshot.val()
-						this.recordScratch	= _.clone(this.recordSource)
-						this.loaded       	= true
+						this.recordSource	= snapshot.val()
+						this.onRecordLoaded()
 					})
 				}
 				else {
 					// creating a new record
-					this.recordSource 	= _.mapValues(this.fields, () => { return "" })
-					this.recordScratch	= _.clone(this.recordSource)
-					this.loaded       	= true
+					this.recordSource	= _.mapValues(this.fields, () => { return "" })
+					this.onRecordLoaded()
 				}
+			},
+			onRecordLoaded() {
+				this.recordWip	= _.clone(this.recordSource)
+				this.loaded   	= true
+				this.$store.commit('editPreview/assign', {
+					type:     	'Record',
+					sectionId:	sectionId,
+					editId:   	this.recordId,
+					record:   	this.recordWip,
+				})
 			},
 			gotoListPage() {
 				this.$router.push(`/record/${this.sectionId}`)
 			},
 			onFieldUpdate(fieldId, newValue) {
-				Vue.set(this.recordScratch, fieldId, newValue)
+				Vue.set(this.recordWip, fieldId, newValue)
+				this.$store.commit('editPreview/update', { fieldId, newValue })
 			},
 			save() {
 				var recordIdToSave = this.isSingleRecordSection ? 'single' : this.recordId
 				if (this.isNewRecord) {
-					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).push(this.recordScratch)
+					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).push(this.recordWip)
 				}
 				else {
-					var objectToSave = _.clone(this.recordScratch) // { ...this.recordScratch }
+					var objectToSave = _.clone(this.recordWip) // { ...this.recordWip }
 					objectToSave.updatedDate = firebase.database.ServerValue.TIMESTAMP
 					if (this.isNewRecord) {
 						objectToSave.createDate = firebase.database.ServerValue.TIMESTAMP

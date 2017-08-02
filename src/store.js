@@ -189,11 +189,48 @@ const siteModule = {
 	},
 }
 
+
+
+const editPreviewModule = {
+	namespaced: true,
+	state: {
+		ready:    	false,
+		type:     	undefined, // 'Record' or 'Template', etc
+		sectionId:	undefined, // only for (type === 'Record') n.b. unused for (type === 'Section')!
+		editId:   	undefined,
+		record:   	{},
+	},
+	getters: {
+	},
+	mutations: {
+		clear(state) {
+			state.ready    	= false
+			state.type     	= undefined
+			state.sectionId	= undefined
+			state.editId   	= undefined
+			state.record   	= undefined
+		},
+		assign(state, newState) {
+			state.ready    	= true
+			state.type     	= newState.type
+			state.sectionId	= newState.sectionId // optional (only used for (type === 'Record'))
+			state.editId   	= newState.editId
+			state.record   	= _.cloneDeep(newState.record)
+		},
+		update(state, { fieldId, newValue }) {
+			Vue.set(state.record, fieldId, newValue)
+		},
+	},
+}
+
+
+
 const store = new Vuex.Store({
 	strict: process.env.NODE_ENV !== 'production',
 	modules: {
-		account:	accountModule,
-		site:   	siteModule,
+		account:    	accountModule,
+		site:       	siteModule,
+		editPreview:	editPreviewModule,
 	},
 	state: { // this.$store.state.stateKey
 		count: 0,

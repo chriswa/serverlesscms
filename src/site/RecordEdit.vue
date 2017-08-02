@@ -72,7 +72,7 @@
 				this.loaded   	= true
 				this.$store.commit('editPreview/assign', {
 					type:     	'Record',
-					sectionId:	sectionId,
+					sectionId:	this.sectionId,
 					editId:   	this.recordId,
 					record:   	this.recordWip,
 				})

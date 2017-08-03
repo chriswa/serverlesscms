@@ -1,16 +1,26 @@
 <template>
-	<CrudList
-		:loaded="loaded"
-		:fields="fields"
-		:records="records"
-		@modify="modify($event)"
-		@create="create"
-		@remove="remove($event)"
-	>
-		<span slot="titleText">{{ section.name }}</span>
-		<span slot="noResultsText">No records</span>
-		<span slot="createButtonText">Create Record</span>
-	</CrudList>
+	<div>
+		<ContentCard :title="section.name">
+			<CrudList
+				v-if="loaded"
+				:fields="fields"
+				:records="records"
+				@modify="modify($event)"
+				@create="create"
+				@remove="remove($event)"
+				singular="record"
+				plural="records"
+			>
+			</CrudList>
+
+			<basic-dialog v-model="showingDeleteConfirm" title="Delete Record?" cls="error" yes="Yes" no="No" @yes="removeConfirmed" v-if="loaded">
+				<p>Are you sure you want to delete the record "{{ records[doomedId] ? records[doomedId][ this.section.titleField ] : '' }}"?</p>
+			</basic-dialog>
+		</ContentCard>
+
+		<LoadingIndicator v-if="!loaded"></LoadingIndicator>
+
+	</div>
 </template>
 
 <script>
@@ -21,8 +31,10 @@
 		props: [ "sectionId" ],
 		data() {
 			return {
-				loaded: 	false,
-				records:	undefined,
+				loaded:              	false,
+				records:             	undefined,
+				showingDeleteConfirm:	false,
+				doomedId:            	undefined,
 			}
 		},
 		computed: {
@@ -42,14 +54,18 @@
 			this.firebaseRefManager.removeAll()
 		},
 		methods: {
-			modify(recordId) {
-				this.$router.push({ name: 'RecordEdit', params: { sectionId: this.sectionId, recordId }})
+			modify(editId) {
+				this.$router.push({ name: 'RecordEdit', params: { sectionId: this.sectionId, editId }})
 			},
 			create() {
 				this.$router.push({ name: 'RecordCreate', params: { sectionId: this.sectionId } })
 			},
-			remove(templateId) {
-				alert('TODO')
+			remove(editId) {
+				this.doomedId            	= editId
+				this.showingDeleteConfirm	= true
+			},
+			removeConfirmed() {
+				fireDB.ref(`/sites/${this.$store.get.site.siteId}/records/${this.sectionId}/${this.doomedId}`).remove()
 			},
 		},
 	}

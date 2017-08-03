@@ -1,31 +1,30 @@
 <template>
-	<CrudEdit
-		:loaded="loaded"
-		:fields="fields"
-		:record="recordWip"
-		@fieldUpdate="onFieldUpdate"
-	>
-		<span slot="titleText">
-			<span v-if="isSingleRecordSection">
-				{{ section.name }}
-			</span>
-			<span v-else>
-				<router-link :to="`/record/${sectionId}/`">{{ section.name }}</router-link> <span v-if="loaded">&mdash; {{ recordTitle || '(untitled)' }}</span>
-			</span>
-		</span>
-		<div slot="buttons">
-			<v-btn :disabled="isUnchanged" @click.native.stop="save">{{ isNewRecord ? 'Create' : 'Update' }}</v-btn>
-			<v-btn :disabled="isUnchanged" @click.native.stop="init" v-if="isSingleRecordSection">Cancel</v-btn>
-			<v-btn :disabled="false"       @click.native.stop="gotoListPage" v-else>Cancel</v-btn>
-		</div>
-	</CrudEdit>
+	<div>
+		<ContentCard :title="section.name + (isSingleRecordSection ? '' : (!loaded ? '' : (' &mdash; ' + (recordTitle || '(untitled)'))))">
+			<CrudEdit
+				v-if="loaded"
+				:fields="fields"
+				:record="recordWip"
+				@fieldUpdate="onFieldUpdate"
+			>
+				<div slot="buttons">
+					<v-btn :disabled="isUnchanged" @click.native.stop="save">{{ isNewRecord ? 'Create' : 'Update' }}</v-btn>
+					<v-btn :disabled="isUnchanged" @click.native.stop="init" v-if="isSingleRecordSection">Cancel</v-btn>
+					<v-btn :disabled="false"       @click.native.stop="gotoListPage" v-else>Cancel</v-btn>
+				</div>
+			</CrudEdit>
+		</ContentCard>
+
+		<LoadingIndicator v-if="!loaded"></LoadingIndicator>
+
+	</div>
 </template>
 
 <script>
 	import FirebaseRefManager from '../util/FirebaseRefManager'
 
 	export default {
-		props: [ "sectionId", "recordId" ],
+		props: [ "sectionId", "editId" ],
 		data() {
 			return {
 				loaded:      	false,
@@ -41,7 +40,7 @@
 			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()       	},
 			titleField()           	{ return this.section.titleField                                  	},
 			isSingleRecordSection()	{ return this.section.type === 'single'                           	},
-			isNewRecord()          	{ return !this.isSingleRecordSection && !this.recordId            	},
+			isNewRecord()          	{ return !this.isSingleRecordSection && !this.editId              	},
 			recordTitle()          	{ return this.loaded ? this.recordWip[this.titleField] : undefined	},
 			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordWip)             	},
 		},
@@ -53,10 +52,10 @@
 		},
 		methods: {
 			init() {
-				var recordIdToLoad = this.isSingleRecordSection ? 'single' : this.recordId
-				if (recordIdToLoad) {
+				var editIdToLoad = this.isSingleRecordSection ? 'single' : this.editId
+				if (editIdToLoad) {
 					this.loaded = false
-					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToLoad}`).once('value', snapshot => {
+					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${editIdToLoad}`).once('value', snapshot => {
 						this.recordSource	= snapshot.val()
 						this.onRecordLoaded()
 					})
@@ -73,7 +72,7 @@
 				this.$store.commit('editPreview/assign', {
 					type:     	'Record',
 					sectionId:	this.sectionId,
-					editId:   	this.recordId,
+					editId:   	this.editId,
 					record:   	this.recordWip,
 				})
 			},
@@ -85,7 +84,7 @@
 				this.$store.commit('editPreview/update', { fieldId, newValue })
 			},
 			save() {
-				var recordIdToSave = this.isSingleRecordSection ? 'single' : this.recordId
+				var editIdToSave = this.isSingleRecordSection ? 'single' : this.editId
 				if (this.isNewRecord) {
 					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}`).push(this.recordWip)
 				}
@@ -95,7 +94,7 @@
 					if (this.isNewRecord) {
 						objectToSave.createDate = firebase.database.ServerValue.TIMESTAMP
 					}
-					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${recordIdToSave}`).update(objectToSave)
+					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${editIdToSave}`).update(objectToSave)
 				}
 				if (this.isSingleRecordSection) {
 					this.init()

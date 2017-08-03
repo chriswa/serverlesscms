@@ -1,68 +1,30 @@
 <template>
 	<div>
-
 		<div ref="preview" :style="{ width: '100%', height: '100vh', overflow: 'hidden' }"></div>
-
 	</div>
 </template>
 
 <script>
 
-	var templateCode = `<!DOCTYPE html>
-<body style="background-color: pink;">
-<title>{ title }</title>
-<h3>{title} &mdash; {subheading}</h3>
-<p><a href="/foo/123" data-href="/bar/quux">/foo/123</a></p>
-{#helperfoo}helperblock {foo}{/helperfoo}
-<ul>
-{#items}
-<li>{name}</li>
-{/items}
-</ul>`
-	var templateView = {
-		title: 'My Title',
-		subheading: 'My subheading',
-		items: [
-			{ name: "Item 1", },
-			{ name: "Item 2", },
-			{ name: "Item 3", },
-		],
-	}
-	var navigationHijackingScript = `<scr`+`ipt>
-(() => {
-	var location = window.document.location
-
-	var onNavigation = event => {
-
-		var targetHref = document.activeElement.href
-		if (targetHref) {
-			var targetUrlPath = targetHref.replace(/^\\w+:\\/\\/\\/?[^\\/]+/, '')
-			window.parent.postMessage({ navigate: targetUrlPath }, '*')
-		}
-		else {
-			var dataHref = document.activeElement.getAttribute('data-href')
-			if (dataHref) {
-				window.parent.postMessage({ navigate: dataHref }, '*')
-			}
-		}
-
-		// prevent navigation
-		var originalHashValue = location.hash
-		window.setTimeout(() => {
-			location.hash = 'preventNavigation' + Math.random()
-			location.hash = originalHashValue
-		}, 0)
-	}
-
-	window.addEventListener('beforeunload',	onNavigation, false)
-	window.addEventListener('unload',      	onNavigation, false)
-})()
-</scr`+`ipt>`
+	import navigationHijackingScript from '../util/PreviewNagivationControlScript'
 
 	export default {
 		data() {
 			return {
+				path: '/',
 			}
+		},
+		computed: {
+			site()          	{ return this.$store.get.site                                         	},
+			ready()         	{ return this.site.ready                                              	},
+			pageId()        	{ return this.ready && _.findKey(this.site.pages, { path: this.path })	},
+			page()          	{ return this.ready && this.site.pages[this.pageId]                   	},
+			pageTemplateId()	{ return this.page && this.page.template                              	},
+			pageTemplate()  	{ return this.ready && this.site.templates[this.pageTemplateId]       	},
+		},
+		watch: {
+			ready(val)	{ this.updatePreview()	},
+			path(val) 	{ this.updatePreview()	},
 		},
 		mounted() {
 			this.iframe                	= document.createElement('iframe')
@@ -83,12 +45,40 @@
 		},
 		methods: {
 			updatePreview() {
+				console.log(`updatePreview...`)
+
+				if (!this.ready) {
+					this.setIframeContent("Loading...")
+					return
+				}
+				if (!this.page) {
+					this.setIframeContent(`Could not find Page for path "${this.path}"`)
+					return
+				}
+				if (!this.pageTemplate) {
+					this.setIframeContent(`Could not find Template "${this.pageTemplateId}"`)
+					return
+				}
+
 				this.setIframeContent("Rendering...")
-				var compiled = dust.compile(templateCode)
-				var tmpl = dust.loadSource(compiled)
-				dust.render(tmpl, templateView, (err, out) => {
-					console.log("Template rendered! (err, out)", err, out)
-					this.setIframeContent(out)
+
+				var templateView = {} ////////////////////////
+
+				var dustTemplate = this.pageTemplate.content
+
+				var dustCompiledTemplate = dust.compile(dustTemplate)
+				var dustLoadedTemplate = dust.loadSource(dustCompiledTemplate)
+				dust.render(dustLoadedTemplate, templateView, (err, out) => {
+
+					if (err) {
+						console.log("Template render error!", err)
+						this.setIframeContent(err)
+					}
+					else {
+						console.log("Template render success!", out)
+						this.setIframeContent(out)
+					}
+
 				})
 			},
 			setIframeContent(html) {
@@ -99,6 +89,7 @@
 			onMessage(event) {
 				if (event.data.navigate) {
 					console.log(`Preview iframe navigation detected: ${event.data.navigate}`)
+					this.path = event.data.navigate
 				}
 			},
 		},

@@ -1,4 +1,7 @@
-export default {
-	name: { order: 0, name: 'Name' },
-	type: { order: 1, name: 'Path' },
+module.exports = {
+	fields: {
+		name:    	{ order: 0, name: 'Name' },
+		path:    	{ order: 1, name: 'Path' },
+		template:	{ order: 2, name: 'Template' },
+	},
 }

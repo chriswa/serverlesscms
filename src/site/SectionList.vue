@@ -1,35 +1,50 @@
 <template>
-	<CrudList
-		:fields="fields"
-		:records="records"
-		@modify="modify($event)"
-		@create="create"
-		@remove="remove($event)"
-	>
-		<span slot="titleText">Configure Sections</span>
-		<span slot="noResultsText">No sections</span>
-		<span slot="createButtonText">Create Section</span>
-	</CrudList>
+	<ContentCard title="Configure Sections">
+		<CrudList
+			:fields="fields"
+			:records="records"
+			@modify="modify($event)"
+			@create="create"
+			@remove="remove($event)"
+			singular="section"
+			plural="sections"
+		>
+		</CrudList>
+
+		<basic-dialog v-model="showingDeleteConfirm" title="Delete Section?" cls="error" yes="Yes" no="No" @yes="removeConfirmed">
+			<p>Are you sure you want to delete the section "{{ records[doomedId] ? records[doomedId].name : '' }}"?</p>
+		</basic-dialog>
+	</ContentCard>
 </template>
 
 <script>
 
-	import fields from './SectionCommon'
+	import { fields } from './SectionCommon'
 
 	export default {
+		data() {
+			return {
+				showingDeleteConfirm:	false,
+				doomedId:            	undefined,
+			}
+		},
 		computed: {
 			fields() 	{ return fields                       	},
 			records()	{ return this.$store.get.site.sections	},
 		},
 		methods: {
-			modify(sectionId) {
-				this.$router.push({ name: 'SectionEdit', params: { sectionId }})
+			modify(editId) {
+				this.$router.push({ name: 'SectionEdit', params: { editId }})
 			},
 			create() {
 				this.$router.push({ name: 'SectionCreate' })
 			},
-			remove(templateId) {
-				alert('TODO')
+			remove(editId) {
+				this.doomedId            	= editId
+				this.showingDeleteConfirm	= true
+			},
+			removeConfirmed() {
+				fireDB.ref(`/sites/${this.$store.get.site.siteId}/sections/${this.doomedId}`).remove()
 			},
 		},
 	}

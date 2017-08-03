@@ -2,8 +2,9 @@
 	<CrudList
 		:fields="fields"
 		:records="records"
-		@modify="$router.push(`edit/${$event}`)"
-		@delete="alert('todo')"
+		@modify="modify($event)"
+		@create="create"
+		@remove="remove($event)"
 	>
 		<span slot="noResultsText">No fields</span>
 		<span slot="createButtonText">Create Field</span>
@@ -17,14 +18,19 @@
 	export default {
 		props: [ "sectionId" ],
 		computed: {
-			fields() {
-				return fields
+			fields() 	{ return fields                                       	},
+			section()	{ return this.$store.get.site.sections[this.sectionId]	},
+			records()	{ return this.section ? this.section.fields : {}      	},
+		},
+		methods: {
+			modify(fieldId) {
+				this.$router.push({ name: 'SectionFieldEdit', params: { sectionId, fieldId }})
 			},
-			section() {
-				return this.$store.get.site.sections[this.sectionId]
+			create() {
+				this.$router.push({ name: 'SectionFieldCreate', params: { sectionId } })
 			},
-			records() {
-				return this.section ? this.section.fields : {}
+			remove(fieldId) {
+				alert('TODO')
 			},
 		},
 	}

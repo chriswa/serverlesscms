@@ -17,11 +17,11 @@ const accountModule = {
 	},
 	getters: {
 		isLoggedIn(state, getters, rootState, rootGetters) {
-			console.log('store getter running: account.isLoggedIn')
+			//console.log('store getter running: account.isLoggedIn')
 			return !!(state.ready && state.uid)
 		},
 		isNewUser(state, getters, rootState, rootGetters) {
-			console.log('store getter running: account.isNewUser')
+			//console.log('store getter running: account.isNewUser')
 			return !!(state.ready && state.uid && _.isEmpty(state.userData))
 		},
 	},
@@ -119,7 +119,7 @@ const siteModule = {
 	},
 	getters: {
 		loaded(state, getters, rootState, rootGetters) {
-			console.log('store getter running: site.loaded')
+			//console.log('store getter running: site.loaded')
 			return state.sections !== undefined
 		},
 	},
@@ -233,12 +233,12 @@ const store = new Vuex.Store({
 		editPreview:	editPreviewModule,
 	},
 	state: { // this.$store.state.stateKey
-		count: 0,
+		//count: 0,
 	},
 	getters: { // this.$store.getters.getterName
-		countPlusOne(state, rootState) {
-			return state.count + 1
-		},
+		//countPlusOne(state, rootState) {
+		//	return state.count + 1
+		//},
 	},
 	mutations: { // this.$store.commit('mutationName')
 		//increment(state, payload) {

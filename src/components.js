@@ -1,7 +1,7 @@
 var componentsToLoad = {
 	
 	'gui/': [
-		'BasicDialog', 'MyDataTable', 'LoadingIndicator', 'NavMenuLink',
+		'BasicDialog', 'MyDataTable', 'LoadingIndicator', 'NavMenuLink', 'ContentCard',
 	],
 
 	'crud/': [

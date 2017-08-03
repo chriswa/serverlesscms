@@ -1,5 +1,5 @@
 <template>
-	<ContentCard :title="'Configure Sections &mdash; ' + (recordWip.name || '(untitled)')">
+	<ContentCard :title="'Configure Pages &mdash; ' + (recordWip.name || '(untitled)')">
 		
 		<CrudEdit
 			:fields="fields"
@@ -12,27 +12,15 @@
 			</div>
 		</CrudEdit>
 	
-		<SectionFieldList
-			v-if="!isNewRecord"
-			:sectionId="editId"
-		>
-			<span slot="titleText">
-				Fields
-			</span>
-		</SectionFieldList>
-
 	</ContentCard>
 </template>
 
 <script>
 
-	import { fields } from './SectionCommon'
+	import { fields } from './PageCommon'
 
 	export default {
 		props: [ "editId" ],
-		components: {
-			"SectionFieldList": require('./SectionFieldList.vue'),
-		},
 		data() {
 			return {
 				recordWip:	{},
@@ -49,19 +37,19 @@
 			site()        	{ return this.$store.get.site                        	},
 			isNewRecord() 	{ return !this.editId                                	},
 			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordWip)	},
-			recordSource()	{ return this.site.sections[this.editId] || {}       	},
+			recordSource()	{ return this.site.pages[this.editId] || {}          	},
 		},
 		methods: {
 			init() {
 				this.recordWip = _.clone(this.recordSource)
 				this.$store.commit('editPreview/assign', {
-					type:  	'Section',
+					type:  	'Page',
 					editId:	this.editId,
 					record:	this.recordWip,
 				})
 			},
 			gotoListPage() {
-				this.$router.push(`/sections`)
+				this.$router.push(`/pages`)
 			},
 			onFieldUpdate(fieldId, newValue) {
 				Vue.set(this.recordWip, fieldId, newValue)
@@ -69,13 +57,13 @@
 			},
 			save() {
 				if (this.isNewRecord) {
-					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/sections`).push(this.recordWip)
+					var newRecordId = fireDB.ref(`/sites/${this.site.siteId}/pages`).push(this.recordWip)
 				}
 				else {
 					var objectToSave = _.clone(this.recordWip)
-					fireDB.ref(`/sites/${this.site.siteId}/sections/${this.editId}`).update(objectToSave)
+					fireDB.ref(`/sites/${this.site.siteId}/pages/${this.editId}`).update(objectToSave)
 				}
-				this.init()
+				this.gotoListPage()
 			},
 		},
 	}

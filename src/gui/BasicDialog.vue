@@ -1,5 +1,5 @@
 <template>
-	<v-dialog-fixed :value="value" width="40%">
+	<v-dialog :value="value" width="40%">
 		<v-card>
 			<v-card-title :class=" 'info white--text ' + cls ">{{ title }}</v-card-title>
 			<v-card-text style="padding-bottom: 0;">
@@ -12,7 +12,7 @@
 				<v-btn @click.native.stop="clickNo" v-if="no">{{ no }}</v-btn>
 			</v-card-text>
 		</v-card>
-	</v-dialog-fixed>
+	</v-dialog>
 </template>
 
 <script>

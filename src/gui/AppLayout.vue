@@ -28,7 +28,14 @@
 
 			<v-toolbar-side-icon light @click.native.stop="isTempNavOpen = !isTempNavOpen" v-if="!isPermanentNavOpen"></v-toolbar-side-icon>
 
-			<v-toolbar-title>ServerlessCMS</v-toolbar-title>
+			<v-toolbar-title>
+				ServerlessCMS
+				<!-- dev links -->
+				<a target="_blank" href="https://console.firebase.google.com/project/serverlesscms/database/data">
+					<img src="https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png" width="32" height="32" style="margin-bottom: -6px; margin-left: 6px;">
+				</a>
+				<!-- / dev links -->
+			</v-toolbar-title>
 			
 			<v-spacer></v-spacer>
 

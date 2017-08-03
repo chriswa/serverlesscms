@@ -1,29 +1,26 @@
 <template>
-	<div>
+	<ContentCard :title="'Configure Templates &mdash; ' + (recordWip.name || '(untitled)')">
 		
 		<CrudEdit
 			:fields="fields"
 			:record="recordWip"
 			@fieldUpdate="onFieldUpdate"
 		>
-			<span slot="titleText">
-				Configure Templates &mdash; {{ recordWip.name || '(untitled)' }}
-			</span>
 			<div slot="buttons">
 				<v-btn :disabled="isUnchanged" @click.native.stop="save">{{ isNewRecord ? 'Create' : 'Update' }}</v-btn>
 				<v-btn :disabled="false"       @click.native.stop="gotoListPage">Cancel</v-btn>
 			</div>
 		</CrudEdit>
 	
-	</div>
+	</ContentCard>
 </template>
 
 <script>
 
-	import fields from './TemplateCommon'
+	import { fields } from './TemplateCommon'
 
 	export default {
-		props: [ "templateId" ],
+		props: [ "editId" ],
 		data() {
 			return {
 				recordWip:	{},
@@ -38,16 +35,16 @@
 		computed: {
 			fields()      	{ return fields                                      	},
 			site()        	{ return this.$store.get.site                        	},
-			isNewRecord() 	{ return !this.templateId                            	},
+			isNewRecord() 	{ return !this.editId                                	},
 			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordWip)	},
-			recordSource()	{ return this.site.templates[this.templateId] || {}  	},
+			recordSource()	{ return this.site.templates[this.editId] || {}      	},
 		},
 		methods: {
 			init() {
 				this.recordWip = _.clone(this.recordSource)
 				this.$store.commit('editPreview/assign', {
 					type:  	'Template',
-					editId:	this.templateId,
+					editId:	this.editId,
 					record:	this.recordWip,
 				})
 			},
@@ -64,7 +61,7 @@
 				}
 				else {
 					var objectToSave = _.clone(this.recordWip)
-					fireDB.ref(`/sites/${this.site.siteId}/templates/${this.templateId}`).update(objectToSave)
+					fireDB.ref(`/sites/${this.site.siteId}/templates/${this.editId}`).update(objectToSave)
 				}
 				this.gotoListPage()
 			},

@@ -200,8 +200,16 @@ const editPreviewModule = {
 		editId:   	undefined,
 		record:   	{},
 	},
-	getters: {
-	},
+	//getters: {
+	//	readyId(state, getters, rootState, rootGetters) {
+	//		if (state.ready) {
+	//			return state
+	//		}
+	//		else {
+	//			return {}
+	//		}
+	//	},
+	//},
 	mutations: {
 		clear(state) {
 			state.ready    	= false

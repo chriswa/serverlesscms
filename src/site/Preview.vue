@@ -8,10 +8,18 @@
 
 	import navigationHijackingScript from '../util/PreviewNagivationControlScript'
 
+	import FirebaseCache from '../util/FirebaseCache'
+	var firebaseCache = new FirebaseCache(fireDB.ref(), 5)
+
+	var templateView = {
+		hello: "world",
+	}
+
 	export default {
 		data() {
 			return {
-				path: '/',
+				path:             	'/',
+				preparedTemplates:	{},
 			}
 		},
 		computed: {
@@ -20,7 +28,15 @@
 			pageId()        	{ return this.ready && _.findKey(this.site.pages, { path: this.path })	},
 			page()          	{ return this.ready && this.site.pages[this.pageId]                   	},
 			pageTemplateId()	{ return this.page && this.page.template                              	},
-			pageTemplate()  	{ return this.ready && this.site.templates[this.pageTemplateId]       	},
+			templateContents() {
+				if (!this.ready) { return {} }
+				const editPreview = this.$store.get.editPreview
+				var templateContentByName = _.zipObject(_.map(this.site.templates, 'name'), _.map(this.site.templates, 'content'))
+				if (editPreview.ready && editPreview.type === 'Template') {
+					templateContentByName[editPreview.record.name] = editPreview.record.content
+				}
+				return templateContentByName
+			},
 		},
 		watch: {
 			ready(val)	{ this.updatePreview()	},
@@ -35,10 +51,7 @@
 
 			window.addEventListener('message', this.onMessage, false)
 
-			//this.$watch('templateView',    () => { this.updatePreview() }, { deep: true })
-			//this.$watch('templateStrings', () => { this.updatePreview() }, { deep: true })
-
-			this.updatePreview()
+			this.$watch('templateContents', this.onTemplatesChange.bind(this))
 		},
 		beforeDestroy() {
 			window.removeEventListener('message', this.onMessage)
@@ -55,19 +68,15 @@
 					this.setIframeContent(`Could not find Page for path "${this.path}"`)
 					return
 				}
-				if (!this.pageTemplate) {
-					this.setIframeContent(`Could not find Template "${this.pageTemplateId}"`)
+
+				var dustLoadedTemplate = this.preparedTemplates[this.pageTemplateId]
+
+				if (!dustLoadedTemplate) {
+					this.setIframeContent(`Template is being prepared...`)
 					return
 				}
 
-				this.setIframeContent("Rendering...")
 
-				var templateView = {} ////////////////////////
-
-				var dustTemplate = this.pageTemplate.content
-
-				var dustCompiledTemplate = dust.compile(dustTemplate)
-				var dustLoadedTemplate = dust.loadSource(dustCompiledTemplate)
 				dust.render(dustLoadedTemplate, templateView, (err, out) => {
 
 					if (err) {
@@ -80,6 +89,29 @@
 					}
 
 				})
+			},
+			onTemplatesChange(newTemplates, oldTemplates) {
+				console.log(`Preview watch templates... ${oldTemplates} => ${newTemplates}`)
+				_.each(Object.keys(newTemplates), newKey => {
+					if (newTemplates[newKey] !== oldTemplates[newKey]) {
+						var dustLoadedTemplate
+						try {
+							console.log(`Compiling template "${newKey}"...`)
+							dustLoadedTemplate = dust.loadSource(dust.compile(newTemplates[newKey]))
+						}
+						catch (err) {
+							console.log(`Template parsing error for "${newKey}": ${err}`)
+							dustLoadedTemplate = dust.loadSource(dust.compile(`Template parsing error for "${newKey}": ${err}`))
+						}
+						Vue.set(this.preparedTemplates, newKey, dustLoadedTemplate)
+					}
+				})
+				_.each(Object.keys(oldTemplates), oldKey => {
+					if (!newTemplates.hasOwnProperty(oldKey)) {
+						Vue.delete(this.preparedTemplates, oldKey)
+					}
+				})
+				this.updatePreview()
 			},
 			setIframeContent(html) {
 				this.iframe.contentWindow.document.open()

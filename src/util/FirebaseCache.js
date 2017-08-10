@@ -13,10 +13,12 @@ export default class FirebaseCache {
 			// check if we already have this snapshot cached
 			var sub = this.subscriptions[subKey]
 			if (sub) {
+				//console.log('FirebaseCache: reusing query')
 				sub.age = 0 // reset the subscription's tick counter (so we know it's active)
 			}
 
 			else {
+				//console.log('FirebaseCache: adding new query!')
 
 				// if we don't already have a subscription for this data, get it from firebase and cache the subscription
 				var firebaseQuery = this.composeFirebaseQuery(path, order, limit)
@@ -78,6 +80,7 @@ export default class FirebaseCache {
 				oldSubKeys.push(subKey)
 			}
 		})
+		//console.log(`FirebaseCache: removing ${oldSubKeys.length} queries`)
 		_.each(oldSubKeys, subKey => {
 			var sub = this.subscriptions[subKey]
 			delete(this.subscriptions[subKey])

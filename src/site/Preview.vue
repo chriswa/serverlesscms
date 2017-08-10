@@ -1,21 +1,35 @@
 <template>
 	<div>
-		<div ref="preview" :style="{ width: '100%', height: '100vh', overflow: 'hidden' }"></div>
+		<PreviewFrame
+			ref="frame"
+			@navigate="path = $event"
+		></PreviewFrame>
 	</div>
 </template>
 
 <script>
 
-	import navigationHijackingScript from '../util/PreviewNagivationControlScript'
-
 	import FirebaseCache from '../util/FirebaseCache'
 	var firebaseCache = new FirebaseCache(fireDB.ref(), 5)
+	window.fbc = firebaseCache
 
-	var templateView = {
-		hello: "world",
+	var templateView
+
+	function findPageIdForPath(pages, path) {
+		return _.findKey(pages, page => {
+			if (page.multiSection) {
+				return path.startsWith(page.path) && path.indexOf('/', page.path.length) === -1
+			}
+			else {
+				return path === page.path
+			}
+		})
 	}
 
 	export default {
+		components: {
+			PreviewFrame: require('./PreviewFrame.vue'),
+		},
 		data() {
 			return {
 				path:             	'/',
@@ -23,11 +37,11 @@
 			}
 		},
 		computed: {
-			site()          	{ return this.$store.get.site                                         	},
-			ready()         	{ return this.site.ready                                              	},
-			pageId()        	{ return this.ready && _.findKey(this.site.pages, { path: this.path })	},
-			page()          	{ return this.ready && this.site.pages[this.pageId]                   	},
-			pageTemplateId()	{ return this.page && this.page.template                              	},
+			site()          	{ return this.$store.get.site                                       	},
+			ready()         	{ return this.site.ready                                            	},
+			pageId()        	{ return this.ready && findPageIdForPath(this.site.pages, this.path)	},
+			page()          	{ return this.ready && this.site.pages[this.pageId]                 	},
+			pageTemplateId()	{ return this.page && this.page.template                            	},
 			templateContents() {
 				if (!this.ready) { return {} }
 				const editPreview = this.$store.get.editPreview
@@ -43,36 +57,65 @@
 			path(val) 	{ this.updatePreview()	},
 		},
 		mounted() {
-			this.iframe                	= document.createElement('iframe')
-			this.iframe.style.width    	= '100%'
-			this.iframe.style.minHeight	= '100vh'
-			this.iframe.style.border   	= 'none'
-			this.$refs.preview.appendChild(this.iframe)
 
-			window.addEventListener('message', this.onMessage, false)
+			templateView = {
+				foo: {bar: 'baaz'},
+				foreach(chunk, context, bodies, params) {
+					const sectionId = params.section
+					if (!sectionId) { throw new Error(`foreach: section is required`) }
+					const section = this.site.sections[ sectionId ]
+					if (!section) { throw new Error(`foreach: section not found: ${sectionId}`) }
+					return chunk.map(chunk => {
+						firebaseCache.get(`/sites/${this.$store.get.site.siteId}/records/${sectionId}`).then(records => {
+							_.each(records, (record, recordKey) => {
+								var newContext = record
+								newContext['_key'] = recordKey
+								if (params.var) { newContext = { [params.var]: newContext } }
+								chunk.render(bodies.block, context.push(newContext))
+							})
+							chunk.end()
+						})
+					})
+				},
+				load(chunk, context, bodies, params) {
+					const sectionId = params.section
+					if (!sectionId) { throw new Error(`load: "section" is required`) }
+					const section = this.site.sections[ sectionId ]
+					if (!section) { throw new Error(`load: "section" not found: "${sectionId}"`) }
+					const recordId = params.id
+					if (!recordId) { throw new Error(`load: "id" is required`) }
+					return chunk.map(chunk => {
+						firebaseCache.get(`/sites/${this.$store.get.site.siteId}/records/${sectionId}/${recordId}`).then(record => {
+							var newContext = record
+							if (params.var) { newContext = { [params.var]: newContext } }
+							chunk.render(bodies.block, context.push(newContext))
+							chunk.end()
+						})
+					})
+				},
+			}
+			templateView.foreach = templateView.foreach.bind(this)
+			templateView.load = templateView.load.bind(this)
 
-			this.$watch('templateContents', this.onTemplatesChange.bind(this))
-		},
-		beforeDestroy() {
-			window.removeEventListener('message', this.onMessage)
+			this.$watch('templateContents', this.onTemplatesChange.bind(this), { immediate: true })
 		},
 		methods: {
 			updatePreview() {
 				console.log(`updatePreview...`)
 
 				if (!this.ready) {
-					this.setIframeContent("Loading...")
+					this.setFrameContent("Loading...")
 					return
 				}
 				if (!this.page) {
-					this.setIframeContent(`Could not find Page for path "${this.path}"`)
+					this.setFrameContent(`Could not find Page for path "${this.path}"`)
 					return
 				}
 
 				var dustLoadedTemplate = this.preparedTemplates[this.pageTemplateId]
 
 				if (!dustLoadedTemplate) {
-					this.setIframeContent(`Template is being prepared...`)
+					this.setFrameContent(`Template is being prepared...`)
 					return
 				}
 
@@ -81,16 +124,17 @@
 
 					if (err) {
 						console.log("Template render error!", err)
-						this.setIframeContent(err)
+						this.setFrameContent(err)
 					}
 					else {
 						console.log("Template render success!", out)
-						this.setIframeContent(out)
+						this.setFrameContent(out)
 					}
 
 				})
 			},
 			onTemplatesChange(newTemplates, oldTemplates) {
+				if (!oldTemplates) { oldTemplates = {} }
 				console.log(`Preview watch templates... ${oldTemplates} => ${newTemplates}`)
 				_.each(Object.keys(newTemplates), newKey => {
 					if (newTemplates[newKey] !== oldTemplates[newKey]) {
@@ -113,16 +157,8 @@
 				})
 				this.updatePreview()
 			},
-			setIframeContent(html) {
-				this.iframe.contentWindow.document.open()
-				this.iframe.contentWindow.document.write(html + navigationHijackingScript)
-				this.iframe.contentWindow.document.close()
-			},
-			onMessage(event) {
-				if (event.data.navigate) {
-					console.log(`Preview iframe navigation detected: ${event.data.navigate}`)
-					this.path = event.data.navigate
-				}
+			setFrameContent(html) {
+				this.$refs.frame.setContent(html)
 			},
 		},
 	}

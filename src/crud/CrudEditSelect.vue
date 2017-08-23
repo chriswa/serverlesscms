@@ -4,7 +4,7 @@
 			:label="field.name"
 			:items="field.items"
 			:value="value"
-			@input="$emit('input', $event)"
+			@input="onInput"
 		></v-select>
 	</div>
 </template>
@@ -12,6 +12,12 @@
 <script>
 	export default {
 		props: [ 'value', 'field' ],
+		methods: {
+			onInput(val) {
+				console.log(`select ${val}`)
+				this.$emit('input', val)
+			},
+		},
 	}
 </script>
 

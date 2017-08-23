@@ -29,7 +29,7 @@
 			},
 			onMessage(event) {
 				if (event.data.navigate) {
-					console.log(`Preview iframe navigation detected: ${event.data.navigate}`)
+					//console.log(`Preview iframe navigation detected: ${event.data.navigate}`)
 					this.$emit('navigate', event.data.navigate)
 				}
 			},

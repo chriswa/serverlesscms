@@ -25,6 +25,7 @@
 				<NavMenuLink @click="linkTo('SectionList')" 	icon="mdi-database"         	>Configure Sections</NavMenuLink>
 				<NavMenuLink @click="linkTo('PageList')"    	icon="mdi-sitemap"          	>Configure Pages</NavMenuLink>
 				<NavMenuLink @click="linkTo('TemplateList')"	icon="mdi-format-align-left"	>Configure Templates</NavMenuLink>
+				<NavMenuLink @click="linkTo('FunctionList')"	icon="mdi-lambda"           	>Configure Functions</NavMenuLink>
 				<NavMenuLink @click="linkTo('Settings')"    	icon="settings"             	>Configure Settings</NavMenuLink>
 
 			</template>

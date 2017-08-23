@@ -90,10 +90,11 @@
 				}
 				else {
 					var objectToSave = _.clone(this.recordWip) // { ...this.recordWip }
-					objectToSave.updatedDate = firebase.database.ServerValue.TIMESTAMP
+					objectToSave.updatedDate = new Date().getTime() // avoid using firebase.database.ServerValue.TIMESTAMP so we don't recieve two firebase updates every record save, triggering two preview renders!
 					if (this.isNewRecord) {
-						objectToSave.createDate = firebase.database.ServerValue.TIMESTAMP
+						objectToSave.createDate = new Date().getTime() // avoid using firebase.database.ServerValue.TIMESTAMP so we don't recieve two firebase updates every record save, triggering two preview renders!
 					}
+					console.log(`RecordEdit save:`, objectToSave)
 					fireDB.ref(`/sites/${this.site.siteId}/records/${this.sectionId}/${editIdToSave}`).update(objectToSave)
 				}
 				if (this.isSingleRecordSection) {

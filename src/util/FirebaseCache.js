@@ -1,8 +1,9 @@
 export default class FirebaseCache {
 	constructor(firebaseBaseRef, ticksToLive = 5) {
-		this.firebaseBaseRef	= firebaseBaseRef
-		this.subscriptions  	= {}
-		this.ticksToLive    	= ticksToLive
+		this.firebaseBaseRef     	= firebaseBaseRef
+		this.activeUpdateCallback	= () => {}
+		this.subscriptions       	= {}
+		this.ticksToLive         	= ticksToLive
 	}
 	get(path, order, limit) {
 		//return new Promise((outerResolve, outerReject) => {
@@ -13,41 +14,56 @@ export default class FirebaseCache {
 			// check if we already have this snapshot cached
 			var sub = this.subscriptions[subKey]
 			if (sub) {
-				//console.log('FirebaseCache: reusing query')
+				console.log(`FirebaseCache: reusing query: ${path}`)
 				sub.age = 0 // reset the subscription's tick counter (so we know it's active)
 			}
 
 			else {
-				//console.log('FirebaseCache: adding new query!')
+				console.log(`FirebaseCache: adding new query: ${path}`)
 
 				// if we don't already have a subscription for this data, get it from firebase and cache the subscription
 				var firebaseQuery = this.composeFirebaseQuery(path, order, limit)
 
-				// we need to store this callback for later, so that we can "off" it
-				var firebaseCallback = undefined
+				// create subscription object and cache it
+				sub = this.subscriptions[subKey] = {
+					age:             	0,
+					snapshotPromise: 	undefined,
+					firebaseQuery:   	firebaseQuery,
+					firebaseCallback:	undefined,
+					hasResponded:    	false,
+					dataSnapshot:    	undefined,
+				}
 
 				// request the data from firebase, capturing its dataSnapshot (n.b. not dataSnapshot.val()) in a promise we can "then" repeatedly
-				var snapshotPromise = new Promise((resolve, reject) => {
+				var firebaseCallback = undefined // we need to store this callback for later, so that we can "off" it
+				sub.snapshotPromise = new Promise((resolve, reject) => {
 					firebaseCallback = dataSnapshot => {
-						resolve(dataSnapshot)
+						sub.dataSnapshot = dataSnapshot
+
+						resolve()
+
+						// if this isn't the first time firebase has called our callback, and the subscription is still fresh (age 0,) fire the activeUpdateCallback so the caller can refresh
+						console.log(`firebaseCallback ${path}: hasResponded = ${sub.hasResponded ? 'true' : 'false'} age = ${sub.age}`)
+						console.log(dataSnapshot.val())
+						if (!sub.hasResponded) {
+							sub.hasResponded = true
+						}
+						else if (sub.age === 0) {
+							this.activeUpdateCallback()
+						}
 					}
 					firebaseQuery.on('value', firebaseCallback)
 				})
 
-				// create subscription object and cache it
-				sub = this.subscriptions[subKey] = {
-					age:	0,
-					snapshotPromise,
-					firebaseQuery,
-					firebaseCallback,
-				}
+				sub.firebaseCallback = firebaseCallback
+
 			}
 
 			// when the sub's snapshotPromise has resolved (n.b. important for cached subs too,) resolve with the dataSnapshot's value
 			//sub.snapshotPromise.then(dataSnapshot => {
 			//	outerResolve(dataSnapshot.val())
 			//})
-			return sub.snapshotPromise.then(dataSnapshot => { return dataSnapshot.val() })
+			return sub.snapshotPromise.then(() => { return sub.dataSnapshot.val() })
 
 		//})
 	}

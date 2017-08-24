@@ -1,11 +1,11 @@
 <template>
 	<div>
-		{{ value.text }}
+		{{ value }}
 	</div>
 </template>
 
 <script>
 	export default {
-		props: [ 'value' ],
+		props: [ 'value', 'field' ],
 	}
 </script>

@@ -19,7 +19,7 @@
 
 <script>
 
-	import { fields } from './PageCommon'
+	import { fields } from './schema/PageSchema'
 
 	export default {
 		data() {

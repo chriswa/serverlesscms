@@ -13,7 +13,7 @@
 
 <script>
 
-	import fields from './SectionFieldCommon'
+	import fields from './schema/SectionFieldSchema'
 
 	export default {
 		props: [ "sectionId" ],

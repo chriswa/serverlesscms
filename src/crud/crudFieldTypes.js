@@ -1,14 +1,14 @@
 export default {
 	text: {
-		show: require('./CrudShowText.vue'),
-		edit: require('./CrudEditTextfield.vue'),
+		show: require('./fields/TextDisplay.vue'),
+		edit: require('./fields/TextEdit.vue'),
 	},
 	clob: {
-		show: require('./CrudShowText.vue'),
-		edit: require('./CrudEditTextbox.vue'),
+		show: require('./fields/ClobDisplay.vue'),
+		edit: require('./fields/ClobEdit.vue'),
 	},
 	ref: {
-		show: require('./CrudShowRef.vue'),
-		edit: require('./CrudEditSelect.vue'),
+		show: require('./fields/RefDisplay.vue'),
+		edit: require('./fields/RefEdit.vue'),
 	},
 }

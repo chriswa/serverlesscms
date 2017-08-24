@@ -19,7 +19,7 @@
 
 <script>
 
-	import { fields } from './SectionCommon'
+	import { fields } from './schema/SectionSchema'
 
 	export default {
 		data() {

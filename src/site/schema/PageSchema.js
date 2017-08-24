@@ -1,4 +1,4 @@
-const store = require('../store').default // WHY CAN"T I USE IMPORT HERE?!
+const store = require('../../store').default // WHY CAN"T I USE IMPORT HERE?!
 
 module.exports = {
 	fields: {

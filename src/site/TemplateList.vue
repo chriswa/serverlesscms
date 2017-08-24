@@ -19,7 +19,7 @@
 
 <script>
 
-	import { fields } from './TemplateCommon'
+	import { fields } from './schema/TemplateSchema'
 
 	export default {
 		data() {

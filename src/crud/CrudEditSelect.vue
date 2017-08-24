@@ -3,7 +3,7 @@
 		<v-select
 			:label="field.name"
 			:items="field.items"
-			:value="value"
+			:value="value && value.value"
 			@input="onInput"
 		></v-select>
 	</div>
@@ -13,9 +13,9 @@
 	export default {
 		props: [ 'value', 'field' ],
 		methods: {
-			onInput(val) {
-				console.log(`select ${val}`)
-				this.$emit('input', val)
+			onInput(newValue) {
+				const text = _.find(this.field.items, ({ value, text }) => value === newValue).text
+				this.$emit('input', { value: newValue, text })
 			},
 		},
 	}

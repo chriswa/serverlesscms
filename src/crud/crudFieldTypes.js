@@ -8,7 +8,7 @@ export default {
 		edit: require('./CrudEditTextbox.vue'),
 	},
 	ref: {
-		show: require('./CrudShowText.vue'),
+		show: require('./CrudShowRef.vue'),
 		edit: require('./CrudEditSelect.vue'),
 	},
 }

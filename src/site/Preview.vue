@@ -39,11 +39,11 @@
 	}
 
 	function getTemplateContentsWithEditPreview(templates, editPreview) {
-		var templateContentByName = _.zipObject(_.map(templates, 'name'), _.map(templates, 'content'))
+		var templateContentsById = _.mapValues(templates, 'content')
 		if (editPreview.ready && editPreview.type === 'Template') {
-			templateContentByName[editPreview.record.name] = editPreview.record.content
+			templateContentsById[editPreview.record.editId] = editPreview.record.content
 		}
-		return templateContentByName
+		return templateContentsById
 	}
 
 	function updatePreparedTemplates(preparedTemplates, newTemplates, oldTemplates) {
@@ -135,8 +135,12 @@
 					this.setFrameContent(`Could not find Page for path "${this.path}"`)
 					return
 				}
+				if (!this.page.template) {
+					this.setFrameContent(`Could not find Template for Page "${this.page.name}"`)
+					return
+				}
 
-				const dustLoadedTemplate = this.preparedTemplates[this.page.template]
+				const dustLoadedTemplate = this.preparedTemplates[this.page.template.value]
 
 				if (!dustLoadedTemplate) {
 					this.setFrameContent(`Compiling template...`)

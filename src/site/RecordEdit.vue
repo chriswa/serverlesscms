@@ -21,6 +21,7 @@
 </template>
 
 <script>
+	import Crud from '../crud/Crud'
 	import FirebaseRefManager from '../util/FirebaseRefManager'
 
 	export default {
@@ -39,7 +40,7 @@
 			fields()               	{ return this.section.fields                                      	},
 			sortedFields()         	{ return _(this.fields).toPairs().sortBy('1.order').value()       	},
 			titleField()           	{ return this.section.titleField                                  	},
-			isSingleRecordSection()	{ return this.section.type === 'single'                           	},
+			isSingleRecordSection()	{ return this.section.type && this.section.type.value === 'single'	},
 			isNewRecord()          	{ return !this.isSingleRecordSection && !this.editId              	},
 			recordTitle()          	{ return this.loaded ? this.recordWip[this.titleField] : undefined	},
 			isUnchanged()          	{ return _.isEqual(this.recordSource, this.recordWip)             	},
@@ -62,7 +63,7 @@
 				}
 				else {
 					// creating a new record
-					this.recordSource	= _.mapValues(this.fields, () => { return "" })
+					this.recordSource	= Crud.newRecord(this.fields)
 					this.onRecordLoaded()
 				}
 			},

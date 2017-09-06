@@ -26,7 +26,7 @@
 
 		<v-toolbar dark fixed :style="{ paddingRight: previewWidthPx, transition: 'none' }">
 
-			<v-toolbar-side-icon light @click.native.stop="isTempNavOpen = !isTempNavOpen" v-if="!isPermanentNavOpen"></v-toolbar-side-icon>
+			<v-toolbar-side-icon light @click="toggleTempNav" v-if="!isPermanentNavOpen"></v-toolbar-side-icon>
 
 			<v-toolbar-title>
 				ServerlessCMS
@@ -63,7 +63,7 @@
 			//console.log(`pinNav == ${localStorage.getItem('pinNav') === 'true'}`)
 			return {
 				isTempNavOpen:       	false,
-				isPermanentNavOpen:  	localStorage.getItem('pinNav') === 'true',
+				isPermanentNavOpen:  	localStorage.getItem('pinNav') !== 'false',
 				isPreviewDesiredOpen:	true,
 				previewWidth:         640,
 			}
@@ -82,6 +82,10 @@
 			},
 		},
 		methods: {
+			toggleTempNav() {
+				console.log(`toggleTempNav`)
+				this.isTempNavOpen = !this.isTempNavOpen
+			},
 			pin() {
 				//console.log('PIN!')
 				this.isTempNavOpen      = false

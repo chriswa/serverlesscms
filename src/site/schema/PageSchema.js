@@ -10,22 +10,36 @@ module.exports = {
 			order: 1,
 			name: 'Path',
 		},
-		template: {
+		multiSection: {
 			order: 2,
-			name: 'Template',
+			name: 'Detail Section',
 			type: 'ref',
 			get items() {
-				return _.map(store.get.site.templates, (template, templateId) => {
+				var items = _.map(store.get.site.sections, (section, sectionId) => {
+					return {
+						text: section.name,
+						value: sectionId,
+					}
+				})
+				items.unshift({ text: '(none)', value: '', })
+				return items
+			},
+		},
+		template: {
+			order: 3,
+			name: 'Template',
+			type: 'ref',
+			//default: '',
+			get items() {
+				var items = _.map(store.get.site.templates, (template, templateId) => {
 					return {
 						text: template.name,
 						value: templateId,
 					}
 				})
+				items.unshift({ text: '(none)', value: '', })
+				return items
 			},
-		},
-		multiSection: {
-			order: 3,
-			name: 'multiSection',
 		},
 	},
 }

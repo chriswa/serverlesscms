@@ -25,7 +25,7 @@
 
 	function findPageIdForPath(pages, path) {
 		return _.findKey(pages, page => {
-			if (page.multiSection) {
+			if (page.multiSection && page.multiSection.value) {
 				return path.startsWith(page.path) && path.indexOf('/', page.path.length) === -1
 			}
 			else {
@@ -161,8 +161,8 @@
 
 				Promise.resolve(templateContext).then(templateContext => {
 					// if this is a "multiSection", we need to load a record and add it to the context before rendering the template...
-					if (this.page.multiSection) {
-						const sectionId = this.page.multiSection
+					if (this.page.multiSection && this.page.multiSection.value) {
+						const sectionId = this.page.multiSection.value
 						const recordId = getRecordIdFromPath(this.path)
 						return firebaseCache.get(`/sites/${this.$store.get.site.siteId}/records/${sectionId}/${recordId}`).then(record => {
 							return _.extend({ record: record }, templateContext)

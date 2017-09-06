@@ -97,7 +97,8 @@
 				this.isTempNavShown = false
 			},
 			linkToSection(sectionId) {
-				if (this.site.sections[sectionId].type === 'single') {
+				const sectionType = this.site.sections[sectionId].type
+				if (sectionType && sectionType.value === 'single') {
 					this.linkTo('RecordEdit', { sectionId, recordId: 'single' })
 				}
 				else {

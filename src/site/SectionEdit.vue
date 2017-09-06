@@ -26,6 +26,7 @@
 
 <script>
 
+	import Crud from '../crud/Crud'
 	import { fields } from './schema/SectionSchema'
 
 	export default {
@@ -45,11 +46,11 @@
 			this.$store.commit('editPreview/clear')
 		},
 		computed: {
-			fields()      	{ return fields                                      	},
-			site()        	{ return this.$store.get.site                        	},
-			isNewRecord() 	{ return !this.editId                                	},
-			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordWip)	},
-			recordSource()	{ return this.site.sections[this.editId] || {}       	},
+			fields()      	{ return fields                                                        	},
+			site()        	{ return this.$store.get.site                                          	},
+			isNewRecord() 	{ return !this.editId                                                  	},
+			isUnchanged() 	{ return _.isEqual(this.recordSource, this.recordWip)                  	},
+			recordSource()	{ return this.site.sections[this.editId] || Crud.newRecord(this.fields)	},
 		},
 		methods: {
 			init() {
